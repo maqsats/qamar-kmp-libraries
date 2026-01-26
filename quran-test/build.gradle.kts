@@ -1,15 +1,15 @@
+import com.android.build.api.dsl.androidLibrary
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
 }
 
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
+    androidLibrary {
+        namespace = "com.qamar.quran.test"
+        compileSdk = 36
+        minSdk = 21
     }
     jvm("desktop")
     iosX64()
@@ -32,13 +32,5 @@ kotlin {
         val desktopMain by getting
         val iosMain by getting
         val jsMain by getting
-    }
-}
-
-android {
-    namespace = "com.qamar.quran.test"
-    compileSdk = 34
-    defaultConfig {
-        minSdk = 21
     }
 }

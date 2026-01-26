@@ -1,19 +1,20 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import com.android.build.api.dsl.androidLibrary
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
+    androidLibrary {
+        namespace = "com.qamar.quran.core"
+        compileSdk = 36
+        minSdk = 21
+
+        withJava()
+        withHostTestBuilder {}
     }
 
     jvm("desktop")
@@ -51,7 +52,7 @@ kotlin {
             }
         }
 
-        val androidUnitTest by getting
+        val androidHostTest by getting
 
         val desktopMain by getting {
             dependencies {
@@ -75,20 +76,6 @@ kotlin {
                 implementation(npm("sql.js", "1.8.0"))
             }
         }
-    }
-}
-
-android {
-    namespace = "com.qamar.quran.core"
-    compileSdk = 34
-    defaultConfig {
-        minSdk = 21
-    }
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].assets.srcDir("src/commonMain/resources")
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
