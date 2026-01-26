@@ -31,50 +31,40 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(libs.coroutines.core)
-                implementation(libs.serialization.json)
-                implementation(libs.sqldelight.runtime)
-                implementation(libs.sqldelight.async.extensions)
-            }
+        val commonMain by getting
+        commonMain.dependencies {
+            implementation(libs.coroutines.core)
+            implementation(libs.serialization.json)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.async.extensions)
         }
 
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        val commonTest by getting
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
 
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.sqldelight.android.driver)
-            }
+        val androidMain by getting
+        androidMain.dependencies {
+            implementation(libs.sqldelight.android.driver)
         }
 
-        val androidHostTest by getting
-
-        val desktopMain by getting {
-            dependencies {
-                implementation(libs.sqldelight.sqlite.driver)
-            }
+        val desktopMain by getting
+        desktopMain.dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
         }
 
-        val iosMain by getting {
-            dependencies {
-                implementation(libs.sqldelight.native.driver)
-            }
+        val iosMain by getting
+        iosMain.dependencies {
+            implementation(libs.sqldelight.native.driver)
         }
 
-        val iosTest by getting
-
-        val jsMain by getting {
-            dependencies {
-                implementation(libs.sqldelight.web.worker.driver)
-                implementation(devNpm("copy-webpack-plugin", "9.1.0"))
-                implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.0"))
-                implementation(npm("sql.js", "1.8.0"))
-            }
+        val jsMain by getting
+        jsMain.dependencies {
+            implementation(libs.sqldelight.web.worker.driver)
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.0"))
+            implementation(npm("sql.js", "1.8.0"))
         }
     }
 }

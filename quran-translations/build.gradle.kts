@@ -25,42 +25,34 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(projects.quranCore)
-                implementation(libs.serialization.json)
-                implementation(libs.coroutines.core)
-                implementation(libs.ktor.client.core)
-            }
+        val commonMain by getting
+        commonMain.dependencies {
+            implementation(projects.quranCore)
+            implementation(libs.serialization.json)
+            implementation(libs.coroutines.core)
+            implementation(libs.ktor.client.core)
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.coroutines.core)
-                implementation(projects.quranTest)
-            }
+        val commonTest by getting
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.coroutines.core)
+            implementation(projects.quranTest)
         }
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.ktor.client.okhttp)
-            }
+        val androidMain by getting
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
         }
-        val androidHostTest by getting
-        val desktopMain by getting {
-            dependencies {
-                implementation(libs.ktor.client.java)
-            }
+        val desktopMain by getting
+        desktopMain.dependencies {
+            implementation(libs.ktor.client.java)
         }
-        val iosMain by getting {
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
+        val iosMain by getting
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
-        val iosTest by getting
-        val jsMain by getting {
-            dependencies {
-                implementation(libs.ktor.client.js)
-            }
+        val jsMain by getting
+        jsMain.dependencies {
+            implementation(libs.ktor.client.js)
         }
     }
 }

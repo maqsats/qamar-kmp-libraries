@@ -23,14 +23,9 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(libs.coroutines.core)
-            }
+        val commonMain by getting
+        commonMain.dependencies {
+            implementation(libs.coroutines.core)
         }
-        val androidMain by getting
-        val desktopMain by getting
-        val iosMain by getting
-        val jsMain by getting
     }
 }

@@ -25,27 +25,19 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(projects.quranApi)
-                implementation(projects.quranCore)
-                implementation(projects.quranTransliteration)
-                implementation(libs.coroutines.core)
-            }
+        val commonMain by getting
+        commonMain.dependencies {
+            implementation(projects.quranApi)
+            implementation(projects.quranCore)
+            implementation(projects.quranTransliteration)
+            implementation(libs.coroutines.core)
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.coroutines.core)
-                implementation(projects.quranTranslations)
-                implementation(projects.quranTest)
-            }
+        val commonTest by getting
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.coroutines.core)
+            implementation(projects.quranTranslations)
+            implementation(projects.quranTest)
         }
-        val androidMain by getting
-        val androidHostTest by getting
-        val desktopMain by getting
-        val iosMain by getting
-        val iosTest by getting
-        val jsMain by getting
     }
 }

@@ -25,45 +25,35 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(projects.quranCore)
-                implementation(projects.quranTransliteration)
-                implementation(projects.quranTranslations)
-                implementation(libs.coroutines.core)
-                implementation(libs.sqldelight.async.extensions)
-            }
+        val commonMain by getting
+        commonMain.dependencies {
+            implementation(projects.quranCore)
+            implementation(projects.quranTransliteration)
+            implementation(projects.quranTranslations)
+            implementation(libs.coroutines.core)
+            implementation(libs.sqldelight.async.extensions)
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.coroutines.core)
-                implementation(projects.quranTest)
-            }
+        val commonTest by getting
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.coroutines.core)
+            implementation(projects.quranTest)
         }
-        val desktopTest by getting {
-            dependencies {
-                implementation(libs.sqldelight.sqlite.driver)
-            }
+        val desktopTest by getting
+        desktopTest.dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
         }
-        val androidHostTest by getting {
-            dependencies {
-                implementation(libs.sqldelight.sqlite.driver)
-            }
+        val androidHostTest by getting
+        androidHostTest.dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
         }
-        val iosTest by getting {
-            dependencies {
-                implementation(libs.sqldelight.native.driver)
-            }
+        val iosTest by getting
+        iosTest.dependencies {
+            implementation(libs.sqldelight.native.driver)
         }
-        val jsTest by getting {
-            dependencies {
-                implementation(libs.sqldelight.web.worker.driver)
-            }
+        val jsTest by getting
+        jsTest.dependencies {
+            implementation(libs.sqldelight.web.worker.driver)
         }
-        val androidMain by getting
-        val desktopMain by getting
-        val iosMain by getting
-        val jsMain by getting
     }
 }
