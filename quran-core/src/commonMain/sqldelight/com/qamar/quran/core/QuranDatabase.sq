@@ -1,0 +1,67 @@
+-- Quran core schema
+CREATE TABLE verses (
+  sura INTEGER NOT NULL,
+  ayah INTEGER NOT NULL,
+  arabic_text TEXT NOT NULL,
+  PRIMARY KEY (sura, ayah)
+);
+
+CREATE TABLE quran_paged (
+  page INTEGER NOT NULL,
+  sura INTEGER NOT NULL,
+  ayah INTEGER NOT NULL,
+  PRIMARY KEY (page, sura, ayah)
+);
+
+getSura:
+SELECT sura, ayah, arabic_text
+FROM verses
+WHERE sura = ?
+ORDER BY ayah;
+
+getVerse:
+SELECT sura, ayah, arabic_text
+FROM verses
+WHERE sura = ? AND ayah = ?;
+
+getPage:
+SELECT v.sura, v.ayah, v.arabic_text
+FROM verses v
+INNER JOIN quran_paged p ON v.sura = p.sura AND v.ayah = p.ayah
+WHERE p.page = ?
+ORDER BY v.sura, v.ayah;
+
+getAllVerses:
+SELECT sura, ayah, arabic_text
+FROM verses
+ORDER BY sura, ayah;
+
+countVerses:
+SELECT COUNT(*) FROM verses;
+
+getAyahPage:
+SELECT page
+FROM quran_paged
+WHERE sura = ? AND ayah = ?
+LIMIT 1;
+
+getPageStart:
+SELECT sura, ayah
+FROM quran_paged
+WHERE page = ?
+ORDER BY sura, ayah
+LIMIT 1;
+
+searchArabic:
+SELECT sura, ayah, arabic_text
+FROM verses
+WHERE arabic_text LIKE '%' || ? || '%'
+ORDER BY sura, ayah;
+
+insertVerse:
+INSERT OR REPLACE INTO verses(sura, ayah, arabic_text)
+VALUES (?, ?, ?);
+
+insertPage:
+INSERT OR REPLACE INTO quran_paged(page, sura, ayah)
+VALUES (?, ?, ?);

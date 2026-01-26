@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="quran-transliteration-desktop">
+    <output-path>$PROJECT_DIR$/quran-transliteration/build/libs</output-path>
+    <root id="archive" name="quran-transliteration-desktop.jar">
+      <element id="module-output" name="qamar-kmp-libraries.quran-transliteration.desktopMain" />
+    </root>
+  </artifact>
+</component>
