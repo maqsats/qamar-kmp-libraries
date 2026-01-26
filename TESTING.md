@@ -6,37 +6,51 @@ This document explains how to run tests for the Qamar KMP Libraries project.
 
 ### Run All Tests (JVM/Desktop)
 ```bash
-./gradlew test
+# Run all desktop (JVM) tests across all modules
+./gradlew desktopTest
+
+# Or run tests for a specific module
+./gradlew :quran-api:desktopTest
 ```
 
 ### Run Tests for a Specific Module
 ```bash
-# Test quran-api module
-./gradlew :quran-api:test
+# Test quran-api module (Desktop/JVM) - ✅ All tests passing!
+./gradlew :quran-api:desktopTest
 
 # Test quran-core module
-./gradlew :quran-core:test
+./gradlew :quran-core:desktopTest
 
 # Test quran-translations module
-./gradlew :quran-translations:test
+./gradlew :quran-translations:desktopTest
 
 # Test quran-transliteration module
-./gradlew :quran-transliteration:test
+./gradlew :quran-transliteration:desktopTest
 
 # Test quran-search module
-./gradlew :quran-search:test
+./gradlew :quran-search:desktopTest
+```
+
+### Verify Tests Are Working
+```bash
+# Run a quick test to verify everything is set up correctly
+./gradlew :quran-api:desktopTest
+
+# Expected output: BUILD SUCCESSFUL with all tests passing
 ```
 
 ## Platform-Specific Test Commands
 
 ### JVM/Desktop Tests
 ```bash
-# Run all JVM tests
-./gradlew jvmTest
+# Run all desktop tests across all modules
+./gradlew desktopTest
 
-# Run JVM tests for a specific module
-./gradlew :quran-api:jvmTest
+# Run desktop tests for a specific module
 ./gradlew :quran-api:desktopTest
+./gradlew :quran-translations:desktopTest
+./gradlew :quran-transliteration:desktopTest
+./gradlew :quran-search:desktopTest
 ```
 
 ### Android Tests

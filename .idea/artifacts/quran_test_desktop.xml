@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="quran-test-desktop">
+    <output-path>$PROJECT_DIR$/quran-test/build/libs</output-path>
+    <root id="archive" name="quran-test-desktop.jar">
+      <element id="module-output" name="qamar-kmp-libraries.quran-test.desktopMain" />
+    </root>
+  </artifact>
+</component>

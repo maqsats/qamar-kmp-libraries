@@ -35,6 +35,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.coroutines.core)
+                implementation(projects.quranTranslations)
+                implementation(projects.quranTest)
             }
         }
         val androidMain by getting

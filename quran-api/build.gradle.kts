@@ -36,6 +36,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.coroutines.core)
+                implementation(projects.quranTest)
             }
         }
         val desktopTest by getting {
@@ -45,7 +46,7 @@ kotlin {
         }
         val androidUnitTest by getting {
             dependencies {
-                implementation(libs.sqldelight.android.driver)
+                implementation(libs.sqldelight.sqlite.driver)
             }
         }
         val iosTest by getting {

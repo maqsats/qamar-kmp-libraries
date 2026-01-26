@@ -23,4 +23,5 @@ include(
     ":quran-translations",
     ":quran-transliteration",
     ":quran-search",
+    ":quran-test",
 )

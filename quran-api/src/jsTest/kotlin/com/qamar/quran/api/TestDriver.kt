@@ -4,16 +4,13 @@ import app.cash.sqldelight.async.coroutines.awaitCreate
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
 import com.qamar.quran.core.database.QuranDatabase
-import kotlinx.coroutines.runBlocking
 import org.w3c.dom.Worker
 
-actual fun createInMemoryDriver(): SqlDriver {
+actual suspend fun createInMemoryDriver(): SqlDriver {
     val worker = Worker(
         js("""new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url)"""),
     )
     val driver = WebWorkerDriver(worker)
-    runBlocking {
-        QuranDatabase.Schema.awaitCreate(driver)
-    }
+    QuranDatabase.Schema.awaitCreate(driver)
     return driver
 }

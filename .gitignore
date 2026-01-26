@@ -1,33 +1,68 @@
-# Project exclude paths
-/.gradle/
-/build/
-/quran-api/build/
-/quran-api/build/classes/kotlin/desktop/main/
-/quran-api/build/classes/kotlin/iosArm64/main/klib/
-/quran-api/build/classes/kotlin/iosSimulatorArm64/main/klib/
-/quran-api/build/classes/kotlin/iosX64/main/klib/
-/quran-api/build/classes/kotlin/js/main/
-/quran-core/build/
-/quran-core/build/classes/kotlin/desktop/main/
-/quran-core/build/classes/kotlin/iosArm64/main/klib/
-/quran-core/build/classes/kotlin/iosSimulatorArm64/main/klib/
-/quran-core/build/classes/kotlin/iosX64/main/klib/
-/quran-core/build/classes/kotlin/js/main/
-/quran-search/build/
-/quran-search/build/classes/kotlin/desktop/main/
-/quran-search/build/classes/kotlin/iosArm64/main/klib/
-/quran-search/build/classes/kotlin/iosSimulatorArm64/main/klib/
-/quran-search/build/classes/kotlin/iosX64/main/klib/
-/quran-search/build/classes/kotlin/js/main/
-/quran-translations/build/
-/quran-translations/build/classes/kotlin/desktop/main/
-/quran-translations/build/classes/kotlin/iosArm64/main/klib/
-/quran-translations/build/classes/kotlin/iosSimulatorArm64/main/klib/
-/quran-translations/build/classes/kotlin/iosX64/main/klib/
-/quran-translations/build/classes/kotlin/js/main/
-/quran-transliteration/build/
-/quran-transliteration/build/classes/kotlin/desktop/main/
-/quran-transliteration/build/classes/kotlin/iosArm64/main/klib/
-/quran-transliteration/build/classes/kotlin/iosSimulatorArm64/main/klib/
-/quran-transliteration/build/classes/kotlin/iosX64/main/klib/
-/quran-transliteration/build/classes/kotlin/js/main/
+# Gradle
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Kotlin Multiplatform (KMP) Build Artifacts
+**/build/classes/
+**/build/kotlin/
+**/build/libs/
+**/build/tmp/
+**/build/test-results/
+**/build/reports/
+**/build/generated/
+*.class
+*.jar
+*.klib
+
+# Kotlin Compiler Cache
+**/build/kotlin/**/cacheable/
+**/build/kotlin/**/classpath-snapshot/
+**/build/kotlin/**/local-state/
+*.tab
+*.tab_i
+*.tab.len
+*.tab.keystream
+*.tab.keystream.len
+*.tab.values.at
+*.bin
+
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea/artifacts/
+.idea/caches/
+.idea/modules.xml
+.idea/workspace.xml
+
+# Android
+*.apk
+*.ap_
+*.aab
+local.properties
+*.dex
+
+# iOS
+*.framework
+*.xcworkspace
+*.xcuserdata
+DerivedData/
+
+# JavaScript/Node
+node_modules/
+kotlin-js-store/
+**/build/js/
+**/build/jsPack/
+*.js.map
+
+# macOS
+.DS_Store
+
+# Other
+*.log
+*.swp
+*.swo
+*~

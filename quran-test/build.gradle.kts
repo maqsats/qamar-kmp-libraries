@@ -25,31 +25,20 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.quranCore)
-                implementation(libs.serialization.json)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
                 implementation(libs.coroutines.core)
-                implementation(projects.quranTest)
             }
         }
         val androidMain by getting
-        val androidUnitTest by getting
         val desktopMain by getting
         val iosMain by getting
-        val iosTest by getting
         val jsMain by getting
     }
 }
 
 android {
-    namespace = "com.qamar.quran.transliteration"
+    namespace = "com.qamar.quran.test"
     compileSdk = 34
     defaultConfig {
         minSdk = 21
     }
-    sourceSets["main"].assets.srcDir("src/commonMain/resources")
 }
