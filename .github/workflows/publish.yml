@@ -48,6 +48,18 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Publishing version: ${VERSION}"
       
+      - name: Verify signing secrets
+        run: |
+          if [ -z "${{ secrets.SIGNING_KEY }}" ]; then
+            echo "::error::SIGNING_KEY secret is not set. Add it in Settings → Secrets and variables → Actions. See docs/HOW-TO-PUBLISH.md"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SIGNING_KEY_ID }}" ] || [ -z "${{ secrets.SIGNING_PASSWORD }}" ]; then
+            echo "::error::SIGNING_KEY_ID or SIGNING_PASSWORD secret is missing. See docs/HOW-TO-PUBLISH.md"
+            exit 1
+          fi
+          echo "Signing secrets are configured."
+
       - name: Configure Gradle properties
         run: |
           cat >> gradle.properties << EOF
