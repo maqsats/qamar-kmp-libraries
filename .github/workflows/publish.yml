@@ -1,0 +1,79 @@
+name: Publish to Maven Central
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.0.0)'
+        required: true
+        type: string
+      snapshot:
+        description: 'Publish as snapshot?'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  publish:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            # Remove 'v' prefix if present
+            VERSION=${VERSION#v}
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            if [ "${{ github.event.inputs.snapshot }}" == "true" ]; then
+              VERSION="${VERSION}-SNAPSHOT"
+            fi
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Publishing version: ${VERSION}"
+      
+      - name: Configure Gradle properties
+        run: |
+          cat >> gradle.properties << EOF
+          GROUP=io.github.maqsats
+          VERSION_NAME=${{ steps.version.outputs.version }}
+          OSSRH_USERNAME=${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD=${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY_ID=${{ secrets.SIGNING_KEY_ID }}
+          SIGNING_PASSWORD=${{ secrets.SIGNING_PASSWORD }}
+          PUBLISHING_GITHUB_REPO=${{ github.repository }}
+          EOF
+      
+      - name: Publish to Maven Central
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: ./gradlew publish --no-daemon
+      
+      - name: Publish summary
+        if: ${{ !contains(steps.version.outputs.version, 'SNAPSHOT') }}
+        run: |
+          echo "## Publishing Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Published modules: quran-core, quran-api, quran-translations, quran-transliteration, quran-search" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to https://s01.oss.sonatype.org/" >> $GITHUB_STEP_SUMMARY
+          echo "2. Login with your Sonatype credentials" >> $GITHUB_STEP_SUMMARY
+          echo "3. Find your staging repository and close it" >> $GITHUB_STEP_SUMMARY
+          echo "4. Release the repository to publish to Maven Central" >> $GITHUB_STEP_SUMMARY

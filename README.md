@@ -8,6 +8,31 @@ Multiplatform Quran stack built from the legacy `QamarOld` assets. Modules:
 - `quran-api`: Public `QuranApi` facade on top of the core DB, transliteration, and translations.
 - `quran-search`: Thin search helper delegating to `QuranApi`.
 
+## Installation
+
+Add the dependencies to your `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    // Core database and models
+    implementation("io.github.maqsats:quran-core:1.0.0")
+    
+    // Public API
+    implementation("io.github.maqsats:quran-api:1.0.0")
+    
+    // Translations
+    implementation("io.github.maqsats:quran-translations:1.0.0")
+    
+    // Transliteration
+    implementation("io.github.maqsats:quran-transliteration:1.0.0")
+    
+    // Search
+    implementation("io.github.maqsats:quran-search:1.0.0")
+}
+```
+
+For Kotlin Multiplatform projects, add the appropriate platform-specific dependencies as needed.
+
 ## Data generation (already run)
 Source data comes from `/Users/maqsat/StudioProjects/QamarOld/app/src/main`:
 

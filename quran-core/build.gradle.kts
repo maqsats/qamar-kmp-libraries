@@ -5,7 +5,14 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
+    id("signing")
 }
+
+group = project.findProperty("GROUP") as String? ?: "io.github.maqsats"
+version = project.findProperty("VERSION_NAME") as String? ?: "1.0.0"
+
+apply(from = rootProject.file("gradle/publishing.gradle.kts"))
 
 kotlin {
     androidLibrary {
@@ -13,7 +20,6 @@ kotlin {
         compileSdk = 36
         minSdk = 21
 
-        withJava()
         withHostTestBuilder {}
     }
 

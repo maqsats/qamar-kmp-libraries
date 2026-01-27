@@ -45,6 +45,12 @@ build/
 local.properties
 *.dex
 
+# Publishing credentials
+gradle.properties.local
+local-signing.env
+.signing-passphrase
+.signing-key-base64.txt
+
 # iOS
 *.framework
 *.xcworkspace
