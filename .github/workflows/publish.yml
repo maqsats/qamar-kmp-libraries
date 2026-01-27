@@ -75,7 +75,11 @@ jobs:
       - name: Publish to Maven Central
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-        run: ./gradlew publish --no-daemon
+        run: |
+          # Decode key to file to avoid env newline/truncation issues (Gradle #15718)
+          echo "$SIGNING_KEY" | tr -d '\n\r' | base64 -d > "$RUNNER_TEMP/signing-key.asc"
+          echo "SIGNING_KEY_PATH=$RUNNER_TEMP/signing-key.asc" >> gradle.properties
+          ./gradlew publish --no-daemon
       
       - name: Publish summary
         if: ${{ !contains(steps.version.outputs.version, 'SNAPSHOT') }}

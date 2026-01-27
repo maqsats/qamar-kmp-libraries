@@ -54,7 +54,7 @@ pub   rsa4096 2024-01-15 [SC]
 uid           [ultimate] Your Name <you@example.com>
 ```
 
-The long hex string (e.g. `XXXXYYYYZZZZ...`) is your **SIGNING_KEY_ID**. Use the full one, or the short form (last 8 chars) depending on what your tooling expects; Gradle usually accepts the full ID.
+The long hex string (e.g. `XXXXYYYYZZZZ...`) is your **SIGNING_KEY_ID**. You can use either the **full fingerprint** or the **last 8 characters**; this project’s build normalizes to the last 8 for Gradle’s signing plugin.
 
 ### 3.3 Export private key as base64 (SIGNING_KEY)
 
