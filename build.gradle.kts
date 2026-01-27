@@ -4,3 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.sqldelight) apply false
 }
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}

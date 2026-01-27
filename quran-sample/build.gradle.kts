@@ -11,9 +11,7 @@ kotlin {
         compileSdk = 36
         minSdk = 21
     }
-    jvm("desktop") {
-        withJava()
-    }
+    jvm("desktop")
     iosX64()
     iosArm64()
     iosSimulatorArm64()
