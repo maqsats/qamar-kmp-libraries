@@ -67,10 +67,18 @@ configure<PublishingExtension> {
 configure<SigningExtension> {
     val signingKeyId = project.findProperty("SIGNING_KEY_ID") as String?
     val signingPassword = project.findProperty("SIGNING_PASSWORD") as String?
-    val signingKey = (project.findProperty("SIGNING_KEY") as String?).takeIf { !it.isNullOrBlank() }
+    val rawKey = (project.findProperty("SIGNING_KEY") as String?).takeIf { !it.isNullOrBlank() }
         ?: System.getenv("SIGNING_KEY")?.takeIf { it.isNotBlank() }
-    
-    if (signingKeyId != null && signingPassword != null && signingKey != null) {
+
+    if (signingKeyId != null && signingPassword != null && rawKey != null) {
+        // Gradle useInMemoryPgpKeys expects ASCII-armored key text.
+        // If the key is base64-encoded (as in HOW-TO-PUBLISH / GitHub Secrets), decode it first.
+        val signingKey = if (rawKey.contains("-----BEGIN PGP")) {
+            rawKey
+        } else {
+            val normalized = rawKey.replace("\n", "").replace("\r", "").trim()
+            String(java.util.Base64.getDecoder().decode(normalized), java.nio.charset.StandardCharsets.UTF_8)
+        }
         useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
         sign(extensions.getByType<PublishingExtension>().publications)
     }
