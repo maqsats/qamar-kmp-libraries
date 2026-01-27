@@ -65,21 +65,32 @@ configure<PublishingExtension> {
 }
 
 configure<SigningExtension> {
-    val signingKeyId = project.findProperty("SIGNING_KEY_ID") as String?
-    val signingPassword = project.findProperty("SIGNING_PASSWORD") as String?
-    val rawKey = (project.findProperty("SIGNING_KEY") as String?).takeIf { !it.isNullOrBlank() }
-        ?: System.getenv("SIGNING_KEY")?.takeIf { it.isNotBlank() }
+    val signingKeyId = (project.findProperty("SIGNING_KEY_ID") as String?).takeIf { !it.isNullOrBlank() }
+        ?: System.getenv("SIGNING_KEY_ID")?.takeIf { it.isNotBlank() }
+    val signingPassword = (project.findProperty("SIGNING_PASSWORD") as String?).takeIf { !it.isNullOrBlank() }
+        ?: System.getenv("SIGNING_PASSWORD")?.takeIf { it.isNotBlank() }
+    val keyPath = (project.findProperty("SIGNING_KEY_PATH") as String?).takeIf { !it.isNullOrBlank() }
+        ?: System.getenv("SIGNING_KEY_PATH")?.takeIf { it.isNotBlank() }
+    val keyPathFile = keyPath?.let { java.io.File(it) }?.takeIf { it.exists() }
+    val rawKey = when {
+        keyPathFile != null -> keyPathFile.readText()
+        else -> (project.findProperty("SIGNING_KEY") as String?).takeIf { !it.isNullOrBlank() }
+            ?: System.getenv("SIGNING_KEY")?.takeIf { it.isNotBlank() }
+    }
 
     if (signingKeyId != null && signingPassword != null && rawKey != null) {
-        // Gradle useInMemoryPgpKeys expects ASCII-armored key text.
-        // If the key is base64-encoded (as in HOW-TO-PUBLISH / GitHub Secrets), decode it first.
+        // Gradle useInMemoryPgpKeys expects the key ID as the last 8 characters (see Gradle #15718).
+        val keyIdForGradle = signingKeyId.replace(" ", "").let { id ->
+            if (id.length > 8) id.takeLast(8) else id
+        }
+        // Expect ASCII-armored key text. If base64-encoded (e.g. GitHub Secrets), decode first.
         val signingKey = if (rawKey.contains("-----BEGIN PGP")) {
             rawKey
         } else {
             val normalized = rawKey.replace("\n", "").replace("\r", "").trim()
             String(java.util.Base64.getDecoder().decode(normalized), java.nio.charset.StandardCharsets.UTF_8)
         }
-        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        useInMemoryPgpKeys(keyIdForGradle, signingKey, signingPassword)
         sign(extensions.getByType<PublishingExtension>().publications)
     }
 }
