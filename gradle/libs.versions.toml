@@ -6,6 +6,8 @@ datetime = "0.7.1"
 serialization = "1.10.0"
 sqldelight = "2.2.1"
 ktor = "3.4.0"
+#noinspection UnusedVersionCatalogEntry
+javafx = "25.0.2"
 
 [libraries]
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

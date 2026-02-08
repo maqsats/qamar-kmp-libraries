@@ -164,7 +164,7 @@ class QuranApiSample {
     /**
      * Demonstrate translation operations.
      */
-    suspend fun demonstrateTranslationOperations() {
+    fun demonstrateTranslationOperations() {
         println("=== Translation Operations ===")
 
         // Get available translations
@@ -177,26 +177,7 @@ class QuranApiSample {
         val first = metadata.first()
         println("   Found ${metadata.size} entries, using first: ${first.displayName} (${first.languageCode})")
 
-        val store = SampleTranslationStore()
-        if (!store.isSupported()) {
-            println("   Download/reading not supported on this platform in the sample build.")
-            return
-        }
-
-        // Download the translation DB
-        println("\n2. Downloading ${first.fileName} ...")
-        val path = store.downloadTranslation(first.fileUrl, first.fileName)
-        println("   Saved to: $path")
-
-        // Peek a verse to prove it worked
-        val translated = store.readVerse(path, sura = 1, ayah = 1)
-        if (translated != null) {
-            println("   Sura 1 Ayah 1: $translated")
-        } else {
-            println("   Could not read verse from downloaded DB")
-        }
-
-        println("\n✓ Translation operations completed\n")
+        println("   Download/reading not supported on this platform in the sample build.")
     }
 
     /**

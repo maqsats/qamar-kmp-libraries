@@ -25,6 +25,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.quranCore)
             implementation(projects.quranApi)
+            implementation(projects.quranAudio)
             implementation(projects.quranTransliteration)
             implementation(projects.quranTranslations)
             implementation(projects.quranSearch)
@@ -37,17 +38,6 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.coroutines.core)
             implementation(projects.quranTest)
-        }
-
-        val desktopTest by getting
-        desktopTest.dependencies {
-            implementation(libs.sqldelight.sqlite.driver)
-        }
-
-        val desktopMain by getting
-        desktopMain.dependencies {
-            implementation(libs.ktor.client.java)
-            implementation(libs.sqldelight.sqlite.driver)
         }
     }
 }
