@@ -19,13 +19,26 @@ FROM verses
 WHERE sura = ?
 ORDER BY ayah;
 
+getSuraWithPage:
+SELECT v.sura, v.ayah, v.arabic_text, p.page
+FROM verses v
+LEFT JOIN quran_paged p ON v.sura = p.sura AND v.ayah = p.ayah
+WHERE v.sura = ?
+ORDER BY v.ayah;
+
 getVerse:
 SELECT sura, ayah, arabic_text
 FROM verses
 WHERE sura = ? AND ayah = ?;
 
+getVerseWithPage:
+SELECT v.sura, v.ayah, v.arabic_text, p.page
+FROM verses v
+LEFT JOIN quran_paged p ON v.sura = p.sura AND v.ayah = p.ayah
+WHERE v.sura = ? AND v.ayah = ?;
+
 getPage:
-SELECT v.sura, v.ayah, v.arabic_text
+SELECT v.sura, v.ayah, v.arabic_text, p.page
 FROM verses v
 INNER JOIN quran_paged p ON v.sura = p.sura AND v.ayah = p.ayah
 WHERE p.page = ?

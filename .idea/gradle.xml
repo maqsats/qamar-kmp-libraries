@@ -10,10 +10,13 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/prayer-core" />
             <option value="$PROJECT_DIR$/quran-api" />
+            <option value="$PROJECT_DIR$/quran-audio" />
             <option value="$PROJECT_DIR$/quran-core" />
             <option value="$PROJECT_DIR$/quran-sample" />
             <option value="$PROJECT_DIR$/quran-search" />
+            <option value="$PROJECT_DIR$/quran-tajweed" />
             <option value="$PROJECT_DIR$/quran-test" />
             <option value="$PROJECT_DIR$/quran-translations" />
             <option value="$PROJECT_DIR$/quran-transliteration" />

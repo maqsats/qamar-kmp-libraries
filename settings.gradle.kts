@@ -20,9 +20,12 @@ rootProject.name = "qamar-kmp-libraries"
 include(
     ":quran-core",
     ":quran-api",
+    ":quran-audio",
     ":quran-translations",
     ":quran-transliteration",
     ":quran-search",
     ":quran-test",
     ":quran-sample",
+    ":quran-tajweed",
+    ":prayer-core",
 )

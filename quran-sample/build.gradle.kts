@@ -1,5 +1,3 @@
-import com.android.build.api.dsl.androidLibrary
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
@@ -31,6 +29,7 @@ kotlin {
             implementation(projects.quranTranslations)
             implementation(projects.quranSearch)
             implementation(libs.coroutines.core)
+            implementation(libs.ktor.client.core)
         }
 
         val commonTest by getting
@@ -42,6 +41,12 @@ kotlin {
 
         val desktopTest by getting
         desktopTest.dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
+        }
+
+        val desktopMain by getting
+        desktopMain.dependencies {
+            implementation(libs.ktor.client.java)
             implementation(libs.sqldelight.sqlite.driver)
         }
     }
