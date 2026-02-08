@@ -9,6 +9,7 @@ import com.qamar.quran.translations.TranslationManager
 import com.qamar.quran.translations.model.TranslationInfo
 import com.qamar.quran.transliteration.TransliterationProvider
 import com.qamar.quran.transliteration.model.TransliterationLanguage
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,6 +18,7 @@ class DefaultQuranApi(
     private val translationManager: TranslationManager? = null,
     private val transliterationProvider: TransliterationProvider? = null,
     private val cacheSize: Int = 256,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : QuranApi {
     private val cacheMap = LinkedHashMap<String, Verse>(cacheSize)
     private val cacheOrder = ArrayDeque<String>()
@@ -48,8 +50,8 @@ class DefaultQuranApi(
         cacheOrder.addLast(key)
     }
 
-    override suspend fun getVerse(sura: Int, ayah: Int): Verse? = withContext(Dispatchers.Default) {
-        getCache(cacheKey(sura, ayah)) ?: database.quranDatabaseQueries.getVerse(
+    override suspend fun getVerse(sura: Int, ayah: Int): Verse? = withContext(dispatcher) {
+        getCache(cacheKey(sura, ayah)) ?: database.quranDatabaseQueries.getVerseWithPage(
             sura = sura.toLong(),
             ayah = ayah.toLong(),
         ).awaitAsOneOrNull()?.let { row ->
@@ -57,34 +59,34 @@ class DefaultQuranApi(
                 sura = row.sura.toInt(),
                 ayah = row.ayah.toInt(),
                 arabicText = row.arabic_text,
-                page = runCatching { getAyahPage(sura, ayah) }.getOrNull(),
+                page = row.page?.toInt(),
             ).withCache()
         }
     }
 
-    override suspend fun getSura(sura: Int): List<Verse> = withContext(Dispatchers.Default) {
-        database.quranDatabaseQueries.getSura(sura.toLong()).awaitAsList().map { row ->
+    override suspend fun getSura(sura: Int): List<Verse> = withContext(dispatcher) {
+        database.quranDatabaseQueries.getSuraWithPage(sura.toLong()).awaitAsList().map { row ->
             Verse(
                 sura = row.sura.toInt(),
                 ayah = row.ayah.toInt(),
                 arabicText = row.arabic_text,
-                page = runCatching { getAyahPage(row.sura.toInt(), row.ayah.toInt()) }.getOrNull(),
+                page = row.page?.toInt(),
             ).withCache()
         }
     }
 
-    override suspend fun getPage(page: Int): List<Verse> = withContext(Dispatchers.Default) {
+    override suspend fun getPage(page: Int): List<Verse> = withContext(dispatcher) {
         database.quranDatabaseQueries.getPage(page.toLong()).awaitAsList().map { row ->
             Verse(
                 sura = row.sura.toInt(),
                 ayah = row.ayah.toInt(),
                 arabicText = row.arabic_text,
-                page = page,
+                page = row.page.toInt(),
             ).withCache()
         }
     }
 
-    override suspend fun getAllVerses(): List<Verse> = withContext(Dispatchers.Default) {
+    override suspend fun getAllVerses(): List<Verse> = withContext(dispatcher) {
         database.quranDatabaseQueries.getAllVerses().awaitAsList().map { row ->
             Verse(
                 sura = row.sura.toInt(),
@@ -94,12 +96,12 @@ class DefaultQuranApi(
         }
     }
 
-    override suspend fun getAyahPage(sura: Int, ayah: Int): Int = withContext(Dispatchers.Default) {
+    override suspend fun getAyahPage(sura: Int, ayah: Int): Int = withContext(dispatcher) {
         database.quranDatabaseQueries.getAyahPage(sura.toLong(), ayah.toLong()).awaitAsOne().toInt()
     }
 
     override suspend fun getPageStart(page: Int): Pair<Int, Int>? =
-        withContext(Dispatchers.Default) {
+        withContext(dispatcher) {
             database.quranDatabaseQueries.getPageStart(page.toLong()).awaitAsOneOrNull()
                 ?.let { it.sura.toInt() to it.ayah.toInt() }
         }
@@ -140,7 +142,7 @@ class DefaultQuranApi(
     ): List<String> = transliterationProvider?.getSuraTransliteration(sura, language).orEmpty()
 
     override suspend fun searchArabic(query: String): List<Verse> =
-        withContext(Dispatchers.Default) {
+        withContext(dispatcher) {
             if (query.isBlank()) return@withContext emptyList()
             database.quranDatabaseQueries.searchArabic(query).awaitAsList().map { row ->
                 Verse(

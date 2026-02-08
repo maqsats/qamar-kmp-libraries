@@ -7,6 +7,7 @@ import com.qamar.quran.core.database.DatabaseConfig
 import com.qamar.quran.core.database.DatabaseFactory
 import com.qamar.quran.core.database.QuranDatabase
 import com.qamar.quran.search.QuranSearchEngine
+import com.qamar.quran.translations.TranslationMetadataSource
 import com.qamar.quran.transliteration.JsonTransliterationProvider
 import com.qamar.quran.transliteration.model.TransliterationLanguage
 
@@ -168,21 +169,32 @@ class QuranApiSample {
 
         // Get available translations
         println("\n1. Get available translations:")
-        val translations = api.getAvailableTranslations()
-        if (translations.isEmpty()) {
-            println("   No translations available (translation downloads not yet implemented)")
-        } else {
-            translations.forEach { translation ->
-                println("   - ${translation.displayName} (${translation.languageCode})")
-                println("     Translator: ${translation.translator}")
-                println("     Downloaded: ${api.isTranslationDownloaded(translation.translationId)}")
-            }
+        val metadata = TranslationMetadataSource(platformContext = null).loadBundled()
+        if (metadata.isEmpty()) {
+            println("   No bundled translation metadata found")
+            return
+        }
+        val first = metadata.first()
+        println("   Found ${metadata.size} entries, using first: ${first.displayName} (${first.languageCode})")
+
+        val store = SampleTranslationStore()
+        if (!store.isSupported()) {
+            println("   Download/reading not supported on this platform in the sample build.")
+            return
         }
 
-        // Check if translation is downloaded
-        println("\n2. Check translation download status:")
-        val isDownloaded = api.isTranslationDownloaded("sample_translation")
-        println("   Sample translation downloaded: $isDownloaded")
+        // Download the translation DB
+        println("\n2. Downloading ${first.fileName} ...")
+        val path = store.downloadTranslation(first.fileUrl, first.fileName)
+        println("   Saved to: $path")
+
+        // Peek a verse to prove it worked
+        val translated = store.readVerse(path, sura = 1, ayah = 1)
+        if (translated != null) {
+            println("   Sura 1 Ayah 1: $translated")
+        } else {
+            println("   Could not read verse from downloaded DB")
+        }
 
         println("\n✓ Translation operations completed\n")
     }
