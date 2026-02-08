@@ -28,4 +28,5 @@ include(
     ":quran-sample",
     ":quran-tajweed",
     ":prayer-core",
+    ":qibla-finder",
 )

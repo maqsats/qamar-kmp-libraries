@@ -17,8 +17,7 @@ internal fun JsonElement.atPath(path: String?): JsonElement? {
 
 private fun JsonElement.navigate(segment: String): JsonElement? {
     if (segment.isBlank()) return this
-    val matcher = Regex("([^\\[]+)?(?:\\[(\\d+)\\])?").matchEntire(segment)
-    if (matcher == null) return null
+    val matcher = Regex("([^\\[]+)?(?:\\[(\\d+)])?").matchEntire(segment) ?: return null
     val name = matcher.groupValues[1]
     val indexText = matcher.groupValues[2]
     var current: JsonElement = this
