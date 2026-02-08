@@ -11,6 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/prayer-core" />
+            <option value="$PROJECT_DIR$/qibla-finder" />
             <option value="$PROJECT_DIR$/quran-api" />
             <option value="$PROJECT_DIR$/quran-audio" />
             <option value="$PROJECT_DIR$/quran-core" />
