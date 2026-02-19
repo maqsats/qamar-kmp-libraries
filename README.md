@@ -7,6 +7,7 @@ Multiplatform Quran stack built from the legacy `QamarOld` assets. Modules:
 - `quran-translations`: Translation metadata + manager contracts (downloads TBD).
 - `quran-api`: Public `QuranApi` facade on top of the core DB, transliteration, and translations.
 - `quran-search`: Thin search helper delegating to `QuranApi`.
+- `quran-audio`: Reciters list, audio URL resolution (config/templates), and **Quran-Audio Project** pure helpers for apps that store reciter by name/address (see below).
 - `quran-tajweed`: Tajweed (recitation rules) detection: input Arabic verse text, output `List<TajweedSpan>` (start, end, rule). Platform-agnostic; use with verse text from `QuranApi` or any source. Rules: MAD, GHUNNA, QALQALA, IQLAB, IDGHAM, IKHFA, HAMZAT_WASL, MAD_HEY, ONE_MAD, MADDAH.
 - `prayer-core`: Multiplatform prayer time calculation engine (ported from QamarOld). Works on **Android, iOS, JS, Desktop**. Supports multiple calculation methods (MWL, ISNA, Egypt, Makkah, etc.), Asr (Shafii/Hanafi), high-latitude adjustments, and timezone resolution (device default or Android CSV-based).
 
@@ -30,6 +31,9 @@ dependencies {
     
     // Search
     implementation("io.github.maqsats:quran-search:1.0.0")
+    
+    // Audio (reciters, URL resolution, Quran-Audio Project pure helpers)
+    implementation("io.github.maqsats:quran-audio:1.0.0")
     
     // Tajweed (recitation rules: spans for coloring)
     implementation("io.github.maqsats:quran-tajweed:1.0.0")
