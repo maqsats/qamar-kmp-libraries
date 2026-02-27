@@ -84,6 +84,46 @@ verse1?.let { v -> TajweedApi.getTajweedSpans(v.arabicText) }
 // Platform applies color per span.rule (MAD, GHUNNA, QALQALA, IQLAB, IDGHAM, IKHFA, etc.)
 ```
 
+## Passing `platformContext`
+
+Pass the same `platformContext` to all resource/database-backed components:
+- `DatabaseFactory(platformContext)`
+- `JsonTransliterationProvider(platformContext)`
+- `TranslationMetadataSource(platformContext)`
+
+| Target | What to pass | Notes |
+| --- | --- | --- |
+| Android | `context.applicationContext` | Required. `DatabaseFactory` throws if value is not an Android `Context`. |
+| iOS | `null` | Current implementation reads from `NSBundle.mainBundle`; `platformContext` is not used. |
+| Desktop (JVM) | `null` | Current implementation loads bundled resources via classpath; `platformContext` is not used. |
+| JS (Browser/Node) | `null` | Current implementation does not use `platformContext`. |
+
+Recommended shared initializer:
+
+```kotlin
+suspend fun createQuranApi(platformContext: Any?): QuranApi {
+    val driver = DatabaseFactory(platformContext).createDriver()
+    val db = QuranDatabase(driver)
+    val transliteration = JsonTransliterationProvider(platformContext)
+
+    return DefaultQuranApi(
+        database = db,
+        translationManager = null,
+        transliterationProvider = transliteration
+    )
+}
+```
+
+Usage per target:
+
+```kotlin
+// Android
+val api = createQuranApi(context.applicationContext)
+
+// iOS / Desktop / JS
+val api = createQuranApi(null)
+```
+
 ## Tajweed (quran-tajweed)
 
 Input: Arabic verse string (e.g. from `QuranApi.getVerse(1, 1)?.arabicText`). Output: `List<TajweedSpan>(start, end, rule)`. Apply your own colors/spans per `TajweedRule` on Android (`ForegroundColorSpan`), Compose (`SpanStyle`), or iOS (`NSAttributedString`).

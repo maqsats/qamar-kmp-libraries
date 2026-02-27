@@ -29,7 +29,11 @@ class QuranApiSample {
     /**
      * Initialize the Quran API with all required components.
      *
-     * @param platformContext Platform-specific context (Android Context, iOS Bundle, etc.)
+     * @param platformContext Platform-specific context:
+     * - Android: pass application Context (required).
+     * - iOS: pass null (NSBundle.mainBundle is used internally).
+     * - Desktop: pass null.
+     * - JS: pass null.
      */
     suspend fun initialize(platformContext: Any? = null) {
         println("=== Initializing Quran API ===")
