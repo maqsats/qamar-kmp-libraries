@@ -1,14 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
-    id("maven-publish")
-    id("signing")
+    alias(libs.plugins.maven.publish)
 }
-
-group = project.findProperty("GROUP") as String? ?: "io.github.maqsats"
-version = project.findProperty("VERSION_NAME") as String? ?: "1.0.0"
-
-apply(from = rootProject.file("gradle/publishing.gradle.kts"))
 
 // OpenJFX platform classifiers and module names (no magic strings in desktop source set).
 private object JavafxPlatform {

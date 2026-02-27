@@ -39,5 +39,5 @@ EOF
 ./gradlew publish --no-daemon
 
 echo "Published successfully!"
-echo "For non-snapshot releases, you may need to close and release the staging repository manually at:"
-echo "https://s01.oss.sonatype.org/"
+echo "For non-snapshot releases, verify and manage your deployments at:"
+echo "https://central.sonatype.com/publishing/deployments"

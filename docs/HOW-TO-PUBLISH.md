@@ -1,6 +1,6 @@
 # How to Get Credentials & Publish
 
-You **don't** upload files on the Sonatype website. Gradle uploads them when you run `./gradlew publish`. The “Upload Your File” / “Choose File” screen is for manual uploads; ignore it for this project.
+You **don't** upload files on the Sonatype website. Gradle uploads them when you run `./gradlew publish`. The "Upload Your File" / "Choose File" screen is for manual uploads; ignore it for this project.
 
 ---
 
@@ -8,8 +8,8 @@ You **don't** upload files on the Sonatype website. Gradle uploads them when you
 
 | What | Where to get it | Used as |
 |------|------------------|--------|
-| **OSSRH_USERNAME** | Sonatype (JIRA) login | Your Sonatype username (email or username) |
-| **OSSRH_PASSWORD** | Sonatype (JIRA) login | Your Sonatype password |
+| **OSSRH_USERNAME** | Central Portal user token | Token username from central.sonatype.com |
+| **OSSRH_PASSWORD** | Central Portal user token | Token password from central.sonatype.com |
 | **SIGNING_KEY_ID** | From `gpg --list-keys` | The key ID (e.g. `ABC123DEF456`) |
 | **SIGNING_PASSWORD** | You chose when creating the GPG key | Passphrase for that key |
 | **SIGNING_KEY** | From `gpg --export-secret-keys ... \| base64` | Base64 blob of your private key |
@@ -20,17 +20,18 @@ You already have `io.github.maqsats` verified and SNAPSHOTs enabled, so Sonatype
 
 ## 2. Get Sonatype Username & Password (OSSRH_*)
 
-1. Go to **https://issues.sonatype.org/** and log in (or create an account).
-2. **OSSRH_USERNAME** = the username you use to log in there (often your email).
-3. **OSSRH_PASSWORD** = that account’s password.
+1. Go to **https://central.sonatype.com/** and log in (or create an account).
+2. Navigate to **Account → Generate User Token**.
+3. **OSSRH_USERNAME** = the token username (not your login email).
+4. **OSSRH_PASSWORD** = the token password.
 
-Use these **only** as env vars or in GitHub Secrets. Don’t put them in `gradle.properties` that you commit.
+Use these **only** as env vars or in GitHub Secrets. Don't put them in `gradle.properties` that you commit.
 
 ---
 
 ## 3. Get GPG Signing Keys (SIGNING_KEY_ID, SIGNING_PASSWORD, SIGNING_KEY)
 
-### 3.1 Create a GPG key (if you don’t have one)
+### 3.1 Create a GPG key (if you don't have one)
 
 ```bash
 gpg --gen-key
@@ -46,7 +47,7 @@ gpg --gen-key
 gpg --list-keys
 ```
 
-You’ll see something like:
+You'll see something like:
 
 ```
 pub   rsa4096 2024-01-15 [SC]
@@ -54,7 +55,7 @@ pub   rsa4096 2024-01-15 [SC]
 uid           [ultimate] Your Name <you@example.com>
 ```
 
-The long hex string (e.g. `XXXXYYYYZZZZ...`) is your **SIGNING_KEY_ID**. You can use either the **full fingerprint** or the **last 8 characters**; this project’s build normalizes to the last 8 for Gradle’s signing plugin.
+The long hex string (e.g. `XXXXYYYYZZZZ...`) is your **SIGNING_KEY_ID**. You can use either the **full fingerprint** or the **last 8 characters**; this project's build normalizes to the last 8 for Gradle's signing plugin.
 
 ### 3.3 Export private key as base64 (SIGNING_KEY)
 
@@ -71,7 +72,7 @@ gpg --export-secret-keys --armor YOUR_KEY_ID | base64 -w 0
 ```
 
 Replace `YOUR_KEY_ID` with the key ID from the previous step.  
-Copy the **entire** output (one long base64 string). That’s **SIGNING_KEY**.
+Copy the **entire** output (one long base64 string). That's **SIGNING_KEY**.
 
 ### 3.4 Publish the public key (required for Sonatype)
 
@@ -87,8 +88,8 @@ Set the variables in your shell (no spaces around `=`), then run the publish scr
 
 ```bash
 # Required
-export OSSRH_USERNAME="your-sonatype-username"
-export OSSRH_PASSWORD="your-sonatype-password"
+export OSSRH_USERNAME="your-central-portal-token-username"
+export OSSRH_PASSWORD="your-central-portal-token-password"
 export SIGNING_KEY_ID="your-key-id-from-gpg-list-keys"
 export SIGNING_PASSWORD="passphrase-you-set-for-gpg-key"
 export SIGNING_KEY="paste-the-full-base64-output-here"
@@ -120,7 +121,7 @@ Or, without the script:
 ./gradlew publish --no-daemon
 ```
 
-After a **release** publish, you still need to **Close** and **Release** the staging repo on Sonatype (see below). For **SNAPSHOT** you don’t; it goes straight to the snapshot repo.
+After a **release** publish, check your deployment status on the Central Portal (see below). For **SNAPSHOT** it goes straight to the snapshot repo.
 
 ---
 
@@ -131,8 +132,8 @@ After a **release** publish, you still need to **Close** and **Release** the sta
 
    | Secret name         | Value |
    |---------------------|--------|
-   | `OSSRH_USERNAME`    | Sonatype username |
-   | `OSSRH_PASSWORD`    | Sonatype password |
+   | `OSSRH_USERNAME`    | Central Portal token username |
+   | `OSSRH_PASSWORD`    | Central Portal token password |
    | `SIGNING_KEY_ID`   | GPG key ID |
    | `SIGNING_PASSWORD` | GPG key passphrase |
    | `SIGNING_KEY`      | Full base64 private key (one line; newlines are OK, it is passed via env) |
@@ -141,7 +142,7 @@ After a **release** publish, you still need to **Close** and **Release** the sta
 
 3. Trigger the workflow:
    - **From a release:** create a Release, tag e.g. `v1.0.0` → workflow runs and publishes that version.
-   - **Manual run:** **Actions → “Publish to Maven Central” → Run workflow**, then enter version (e.g. `1.0.0`) and “snapshot” (true/false).
+   - **Manual run:** **Actions → "Publish to Maven Central" → Run workflow**, then enter version (e.g. `1.0.0`) and "snapshot" (true/false).
 
 Note: because this project publishes iOS artifacts (`iosArm64`, `iosX64`, `iosSimulatorArm64`), the publish workflow runs on **macOS** runners.
 
@@ -149,36 +150,36 @@ Again: **no file upload on the website.** The workflow runs `./gradlew publish` 
 
 ---
 
-## 6. After a **Release** Publish: Close & Release on Sonatype
+## 6. After a **Release** Publish: Verify on Central Portal
 
 Only for **non-SNAPSHOT** publishes (e.g. `1.0.0`).
 
-1. Open **https://s01.oss.sonatype.org/** and log in with your Sonatype credentials.
-2. In the left menu: **Staging repositories**.
-3. Find the repository for your upload (e.g. `iogithubmaqsats-1234`).
-4. Select it → **Close** → wait until it’s closed (no errors).
-5. Select it again → **Release**.
-6. Wait 10–30 minutes; then the artifacts sync to Maven Central.
+1. Open **https://central.sonatype.com/** and log in.
+2. Go to **Publishing → Deployments**.
+3. Find your deployment and verify its status.
+4. The Central Portal validates and publishes automatically; wait 10–30 minutes for Maven Central sync.
 
-You do **not** use “Upload Your File” / “Choose File” for this; that’s for ad‑hoc uploads. Your publish is done by Gradle (or the publish script / GitHub Action).
+Your publish is done by Gradle (or the publish script / GitHub Action). The new Central Portal handles validation and release automatically.
 
 ---
 
 ## 7. Verify It Worked
 
-- **SNAPSHOT:**  
-  https://s01.oss.sonatype.org/content/repositories/snapshots/io/github/maqsats/
+- **Central Portal Deployments:**  
+  https://central.sonatype.com/publishing/deployments
 - **Release (after sync):**  
   https://repo1.maven.org/maven2/io/github/maqsats/
+- **Search on Maven Central:**  
+  https://central.sonatype.com/search?q=io.github.maqsats
 
 ---
 
-## Quick Reference: “API keys” = these five
+## Quick Reference: "API keys" = these five
 
-- **OSSRH_USERNAME** → Sonatype login username  
-- **OSSRH_PASSWORD** → Sonatype login password  
+- **OSSRH_USERNAME** → Central Portal token username  
+- **OSSRH_PASSWORD** → Central Portal token password  
 - **SIGNING_KEY_ID** → `gpg --list-keys` → key ID  
 - **SIGNING_PASSWORD** → GPG key passphrase  
 - **SIGNING_KEY** → `gpg --export-secret-keys --armor KEY_ID | base64`  
 
-You don’t create “API keys” in a separate screen; you use your Sonatype account + GPG key as above.
+You don't create "API keys" in a separate screen; you use your Central Portal token + GPG key as above.

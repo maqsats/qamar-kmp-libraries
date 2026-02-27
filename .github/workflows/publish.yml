@@ -86,10 +86,10 @@ jobs:
         run: |
           echo "## Publishing Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Published modules: quran-core, quran-api, quran-translations, quran-transliteration, quran-search" >> $GITHUB_STEP_SUMMARY
+          echo "- Published modules: quran-core, quran-api, quran-audio, quran-translations, quran-transliteration, quran-search, quran-tajweed, prayer-core, qibla-finder" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Next steps:**" >> $GITHUB_STEP_SUMMARY
-          echo "1. Go to https://s01.oss.sonatype.org/" >> $GITHUB_STEP_SUMMARY
-          echo "2. Login with your Sonatype credentials" >> $GITHUB_STEP_SUMMARY
-          echo "3. Find your staging repository and close it" >> $GITHUB_STEP_SUMMARY
-          echo "4. Release the repository to publish to Maven Central" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to https://central.sonatype.com/publishing/deployments" >> $GITHUB_STEP_SUMMARY
+          echo "2. Login with your Central Portal credentials" >> $GITHUB_STEP_SUMMARY
+          echo "3. Verify your deployment status" >> $GITHUB_STEP_SUMMARY
+          echo "4. Artifacts will sync to Maven Central within 10-30 minutes" >> $GITHUB_STEP_SUMMARY
