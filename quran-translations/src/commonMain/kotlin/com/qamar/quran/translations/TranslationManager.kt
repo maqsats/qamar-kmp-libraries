@@ -3,6 +3,7 @@ package com.qamar.quran.translations
 import com.qamar.quran.translations.model.DownloadProgress
 import com.qamar.quran.translations.model.DownloadStatus
 import com.qamar.quran.translations.model.TranslationInfo
+import com.qamar.quran.translations.model.TranslationSearchHit
 import kotlinx.coroutines.flow.Flow
 
 interface TranslationManager {
@@ -15,4 +16,6 @@ interface TranslationManager {
     suspend fun cancelDownload(translationId: String): Boolean
     suspend fun getAvailableTranslations(): List<TranslationInfo>
     suspend fun isTranslationDownloaded(translationId: String): Boolean
+    suspend fun getVerseTranslation(sura: Int, ayah: Int, translationId: String): String?
+    suspend fun searchTranslation(query: String, translationId: String, limit: Int = 50): List<TranslationSearchHit>
 }

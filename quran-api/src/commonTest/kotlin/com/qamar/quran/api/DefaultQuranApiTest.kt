@@ -363,8 +363,16 @@ class DefaultQuranApiTest {
 
         override suspend fun getAvailableTranslations() = translations
 
-        override suspend fun isTranslationDownloaded(translationId: String) = 
+        override suspend fun isTranslationDownloaded(translationId: String) =
             downloaded.contains(translationId)
+
+        override suspend fun getVerseTranslation(sura: Int, ayah: Int, translationId: String): String? = null
+
+        override suspend fun searchTranslation(
+            query: String,
+            translationId: String,
+            limit: Int,
+        ): List<com.qamar.quran.translations.model.TranslationSearchHit> = emptyList()
     }
 
     private class MockTransliterationProvider : TransliterationProvider {

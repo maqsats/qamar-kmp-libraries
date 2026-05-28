@@ -11,6 +11,12 @@ Multiplatform Quran stack built from the legacy `QamarOld` assets. Modules:
 - `quran-tajweed`: Tajweed (recitation rules) detection: input Arabic verse text, output `List<TajweedSpan>` (start, end, rule). Platform-agnostic; use with verse text from `QuranApi` or any source. Rules: MAD, GHUNNA, QALQALA, IQLAB, IDGHAM, IKHFA, HAMZAT_WASL, MAD_HEY, ONE_MAD, MADDAH.
 - `prayer-core`: Multiplatform prayer time calculation engine (ported from QamarOld). Works on **Android, iOS, JS, Desktop**. Supports multiple calculation methods (MWL, ISNA, Egypt, Makkah, etc.), Asr (Shafii/Hanafi), high-latitude adjustments, and timezone resolution (device default or Android CSV-based).
 
+## Detailed API documentation
+
+For full Maven integration details and method-by-method API docs for every module, see:
+
+- `docs/API_REFERENCE.md`
+
 ## Installation
 
 Add the dependencies to your `build.gradle.kts`:

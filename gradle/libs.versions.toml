@@ -1,13 +1,16 @@
 [versions]
-kotlin = "2.3.10"
+kotlin = "2.3.21"
 agp = "9.0.0"
-coroutines = "1.10.2"
+coroutines = "1.11.0"
 datetime = "0.7.1"
 serialization = "1.10.0"
 sqldelight = "2.2.1"
 ktor = "3.4.0"
 #noinspection UnusedVersionCatalogEntry
 javafx = "25.0.2"
+okio = "3.9.0"
+
+
 maven-publish = "0.36.0"
 
 [libraries]
@@ -25,8 +28,11 @@ sqldelight-async-extensions = { module = "app.cash.sqldelight:async-extensions",
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+
 ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+
 ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 
 [plugins]

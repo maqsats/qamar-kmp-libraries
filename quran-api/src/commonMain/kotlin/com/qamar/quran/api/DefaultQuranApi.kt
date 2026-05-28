@@ -58,7 +58,7 @@ class DefaultQuranApi(
             Verse(
                 sura = row.sura.toInt(),
                 ayah = row.ayah.toInt(),
-                arabicText = row.arabic_text,
+                arabicText = row.arabic_text.trimTrailingLineBreaks(),
                 page = row.page?.toInt(),
             ).withCache()
         }
@@ -69,7 +69,7 @@ class DefaultQuranApi(
             Verse(
                 sura = row.sura.toInt(),
                 ayah = row.ayah.toInt(),
-                arabicText = row.arabic_text,
+                arabicText = row.arabic_text.trimTrailingLineBreaks(),
                 page = row.page?.toInt(),
             ).withCache()
         }
@@ -80,7 +80,7 @@ class DefaultQuranApi(
             Verse(
                 sura = row.sura.toInt(),
                 ayah = row.ayah.toInt(),
-                arabicText = row.arabic_text,
+                arabicText = row.arabic_text.trimTrailingLineBreaks(),
                 page = row.page.toInt(),
             ).withCache()
         }
@@ -91,7 +91,7 @@ class DefaultQuranApi(
             Verse(
                 sura = row.sura.toInt(),
                 ayah = row.ayah.toInt(),
-                arabicText = row.arabic_text,
+                arabicText = row.arabic_text.trimTrailingLineBreaks(),
             ).withCache()
         }
     }
@@ -107,14 +107,11 @@ class DefaultQuranApi(
         }
 
     override suspend fun getTranslation(sura: Int, ayah: Int, translationId: String?): String? {
-        // TODO: hook into translation storage/DB once wired.
         return translationManager?.let { manager ->
-            // Placeholder to ensure API contract without crashing.
             val available = manager.getAvailableTranslations()
             val target = translationId ?: available.firstOrNull()?.translationId
             if (target != null) {
-                // Real translation lookup should be implemented.
-                null
+                manager.getVerseTranslation(sura, ayah, target)
             } else null
         }
     }
@@ -148,7 +145,7 @@ class DefaultQuranApi(
                 Verse(
                     sura = row.sura.toInt(),
                     ayah = row.ayah.toInt(),
-                    arabicText = row.arabic_text,
+                    arabicText = row.arabic_text.trimTrailingLineBreaks(),
                 )
             }
         }
@@ -157,8 +154,17 @@ class DefaultQuranApi(
         query: String,
         translationId: String?,
     ): List<Verse> {
-        // TODO: implement when translation storage is wired.
-        return emptyList()
+        if (query.isBlank()) return emptyList()
+        val manager = translationManager ?: return emptyList()
+        val target = translationId
+            ?: manager.getAvailableTranslations().firstOrNull()?.translationId
+            ?: return emptyList()
+        if (!manager.isTranslationDownloaded(target)) return emptyList()
+        return manager.searchTranslation(query, target).map { hit ->
+            val verse = getVerse(hit.sura, hit.ayah)
+            (verse ?: Verse(sura = hit.sura, ayah = hit.ayah, arabicText = ""))
+                .copy(translation = hit.text)
+        }
     }
 
     override suspend fun searchTransliteration(
@@ -190,3 +196,10 @@ class DefaultQuranApi(
         getPage(page)
     }
 }
+
+// Some rows in the seeded Quran DB end with a line-terminator codepoint
+// (LF, CR, U+2028 LINE SEPARATOR, U+2029 PARAGRAPH SEPARATOR). Compose Text
+// honors those as a real empty line, which renders as visible padding below
+// the glyph — most obvious on short ayat like "الٓمٓ".
+private fun String.trimTrailingLineBreaks(): String =
+    trimEnd { it == '\n' || it == '\r' || it == ' ' || it == ' ' }
