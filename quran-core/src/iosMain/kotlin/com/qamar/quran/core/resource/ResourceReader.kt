@@ -19,9 +19,17 @@ actual class ResourceReader actual constructor(platformContext: Any?) {
         val dotIndex = nameWithExt.lastIndexOf('.')
         val name = if (dotIndex >= 0) nameWithExt.substring(0, dotIndex) else nameWithExt
         val ext = if (dotIndex >= 0) nameWithExt.substring(dotIndex + 1) else null
-        return NSBundle.mainBundle.pathForResource(name, ext)?.let { fullPath ->
-            NSData.dataWithContentsOfFile(fullPath)
+        val bundle = NSBundle.mainBundle
+        bundle.pathForResource(name, ext)?.let { fullPath ->
+            return NSData.dataWithContentsOfFile(fullPath)
         }
+        if (components.size > 1) {
+            val subdir = components.dropLast(1).joinToString("/")
+            bundle.pathForResource(name, ext, subdir)?.let { fullPath ->
+                return NSData.dataWithContentsOfFile(fullPath)
+            }
+        }
+        return null
     }
 
     actual fun readText(path: String): String {

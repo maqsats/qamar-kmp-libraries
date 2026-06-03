@@ -34,6 +34,15 @@ TRANSLIT_RU_XML = LEGACY_APP / "res/values/translit_ru.xml"
 
 LEGACY_DB = LEGACY_APP / "assets/databases/qurankz.db"
 
+# Canonical Uthmani fixes for legacy arabic.xml truncation / typos (see Downloads/quran.db).
+UTHMANI_CORRECTIONS: Dict[Tuple[int, int], str] = {
+    (1, 1): "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+    (9, 1): "بَرَآءَةٌ مِّنَ ٱللَّهِ وَرَسُولِهِۦٓ إِلَى ٱلَّذِينَ عَٰهَدتُّم مِّنَ ٱلْمُشْرِكِينَ",
+    (95, 1): "بِّسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَٱلتِّينِ وَٱلزَّيْتُونِ",
+    (97, 1): "بِّسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ إِنَّآ أَنزَلْنَٰهُ فِى لَيْلَةِ ٱلْقَدْرِ",
+    (114, 6): "مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ",
+}
+
 
 @dataclass
 class Verse:
@@ -43,9 +52,32 @@ class Verse:
 
 
 def is_bismillah(text: str) -> bool:
-    """Legacy string arrays prefix every sura except At-Tawba with basmala at index 0."""
-    normalized = text.strip().casefold()
+    """Legacy string arrays prefix most suras with basmala at index 0."""
+    stripped = text.strip()
+    if stripped.startswith("بِسْم") or stripped.startswith("بسم"):
+        return True
+    normalized = stripped.casefold()
     return normalized.startswith("бисмилл") or normalized.startswith("bismill")
+
+
+def apply_uthmani_corrections(verses: List[Verse]) -> List[Verse]:
+    return [
+        Verse(v.sura, v.ayah, UTHMANI_CORRECTIONS.get((v.sura, v.ayah), v.text))
+        for v in verses
+    ]
+
+
+def apply_uthmani_corrections_to_arrays(data: List[List[str]]) -> List[List[str]]:
+    corrected: List[List[str]] = []
+    for sura_idx, verses in enumerate(data):
+        sura = sura_idx + 1
+        row = list(verses)
+        for ayah_idx in range(len(row)):
+            key = (sura, ayah_idx + 1)
+            if key in UTHMANI_CORRECTIONS:
+                row[ayah_idx] = UTHMANI_CORRECTIONS[key]
+        corrected.append(row)
+    return corrected
 
 
 def trim_arrays(raw: Dict[int, List[str]]) -> List[List[str]]:
@@ -153,12 +185,13 @@ def main() -> None:
     translit_ru_arrays = load_string_arrays(TRANSLIT_RU_XML, "translit_ru")
     translit_kk_arrays = load_string_arrays(TRANSLIT_KK_XML, "translit")
 
-    verses = normalize_verses(arabic_arrays)
+    verses = apply_uthmani_corrections(normalize_verses(arabic_arrays))
     page_rows = read_page_map()
 
     build_sqlite_db(verses, page_rows)
 
-    dump_json(OUTPUT_DIR / "arabic.json", trim_arrays(arabic_arrays))
+    arabic_json = apply_uthmani_corrections_to_arrays(trim_arrays(arabic_arrays))
+    dump_json(OUTPUT_DIR / "arabic.json", arabic_json)
     dump_json(OUTPUT_DIR / "translit_en.json", trim_arrays(translit_en_arrays))
     dump_json(OUTPUT_DIR / "translit_ru.json", trim_arrays(translit_ru_arrays))
     dump_json(OUTPUT_DIR / "translit_kk.json", trim_arrays(translit_kk_arrays))
