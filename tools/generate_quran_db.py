@@ -42,6 +42,25 @@ class Verse:
     text: str
 
 
+def is_bismillah(text: str) -> bool:
+    """Legacy string arrays prefix every sura except At-Tawba with basmala at index 0."""
+    normalized = text.strip().casefold()
+    return normalized.startswith("бисмилл") or normalized.startswith("bismill")
+
+
+def trim_arrays(raw: Dict[int, List[str]]) -> List[List[str]]:
+    data: List[List[str]] = []
+    for sura in range(1, 115):
+        items = raw.get(sura, [])
+        if sura == 1:
+            data.append(items)
+        elif items and is_bismillah(items[0]):
+            data.append(items[1:])
+        else:
+            data.append(items)
+    return data
+
+
 def load_string_arrays(xml_path: Path, prefix: str) -> Dict[int, List[str]]:
     tree = ElementTree.parse(xml_path)
     root = tree.getroot()
@@ -51,7 +70,7 @@ def load_string_arrays(xml_path: Path, prefix: str) -> Dict[int, List[str]]:
         if not name.startswith(prefix + "_"):
             continue
         try:
-            sura_num = int(name.split("_")[1])
+            sura_num = int(name.rsplit("_", 1)[-1])
         except (ValueError, IndexError):
             continue
         arrays[sura_num] = [item.text or "" for item in arr.findall("item")]
@@ -62,9 +81,13 @@ def normalize_verses(raw_arrays: Dict[int, List[str]]) -> List[Verse]:
     verses: List[Verse] = []
     for sura in range(1, 115):
         items = raw_arrays.get(sura, [])
-        # Legacy arrays include the basmala as element 0 for all suras.
-        # Keep basmala for sura 1, drop for others to match canonical numbering.
-        effective_items = items if sura == 1 else items[1:]
+        # Legacy arrays include basmala at index 0 for all suras except At-Tawba (9).
+        if sura == 1:
+            effective_items = items
+        elif items and is_bismillah(items[0]):
+            effective_items = items[1:]
+        else:
+            effective_items = items
         for idx, text in enumerate(effective_items, start=1):
             verses.append(Verse(sura=sura, ayah=idx, text=text.strip()))
     return verses
@@ -134,13 +157,6 @@ def main() -> None:
     page_rows = read_page_map()
 
     build_sqlite_db(verses, page_rows)
-
-    def trim_arrays(raw: Dict[int, List[str]]) -> List[List[str]]:
-        data: List[List[str]] = []
-        for sura in range(1, 115):
-            items = raw.get(sura, [])
-            data.append(items if sura == 1 else items[1:])
-        return data
 
     dump_json(OUTPUT_DIR / "arabic.json", trim_arrays(arabic_arrays))
     dump_json(OUTPUT_DIR / "translit_en.json", trim_arrays(translit_en_arrays))

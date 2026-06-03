@@ -139,4 +139,24 @@ class JsonTransliterationProviderTest {
             assertTrue(transliterations.size >= 1)
         }
     }
+
+    @Test
+    fun testKazakhSuraNineHasAllAyahs() = runTest {
+        val transliterations = provider.getSuraTransliteration(9, TransliterationLanguage.KAZAKH)
+        assertEquals(129, transliterations.size)
+
+        val firstAyah = provider.getTransliteration(9, 1, TransliterationLanguage.KAZAKH)
+        assertEquals(
+            "бәрәәтум миналлаһи уәрәсуулиһи иләл ләз̃иинә ъаһәдттум минәл мушрикиин",
+            firstAyah,
+        )
+    }
+
+    @Test
+    fun testKazakhVerseCount() = runTest {
+        val total = (1..114).sumOf { sura ->
+            provider.getSuraTransliteration(sura, TransliterationLanguage.KAZAKH).size
+        }
+        assertEquals(6236, total)
+    }
 }
