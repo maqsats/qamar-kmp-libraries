@@ -4,6 +4,55 @@ You **don't** upload files on the Sonatype website. Gradle uploads them when you
 
 ---
 
+## 0. Quick Publish (recommended — `local-signing.env`)
+
+Credentials live in a **git-ignored** `local-signing.env` at the repo root — **never commit or print it**. It defines the five values from the table in §1:
+
+```
+OSSRH_USERNAME=...
+OSSRH_PASSWORD=...
+SIGNING_KEY_ID=...
+SIGNING_PASSWORD=...
+SIGNING_KEY=...            # base64 of `gpg --export-secret-keys --armor KEY_ID`
+```
+
+To cut a release:
+
+1. Bump `VERSION_NAME` in `gradle.properties`. Maven Central versions are **immutable** — always use a new number (e.g. `1.0.16` → `1.0.17`).
+2. Load the credentials and publish **+ release** in one step:
+
+```bash
+cd /Users/maqsat/StudioProjects/qamar-kmp-libraries
+set -a && source local-signing.env && set +a
+ARMORED_KEY=$(echo "$SIGNING_KEY" | tr -d '\n\r' | base64 -d)
+export ORG_GRADLE_PROJECT_mavenCentralUsername="$OSSRH_USERNAME"
+export ORG_GRADLE_PROJECT_mavenCentralPassword="$OSSRH_PASSWORD"
+export ORG_GRADLE_PROJECT_signingInMemoryKeyId="${SIGNING_KEY_ID: -8}"
+export ORG_GRADLE_PROJECT_signingInMemoryKeyPassword="$SIGNING_PASSWORD"
+export ORG_GRADLE_PROJECT_signingInMemoryKey="$ARMORED_KEY"
+./gradlew publishAndReleaseToMavenCentral --no-daemon
+```
+
+3. Watch the deployment at https://central.sonatype.com/publishing/deployments (syncs to Maven Central in ~10–30 min).
+
+**Local smoke test first (no upload to Central):**
+
+```bash
+# Signing is on by default (RELEASE_SIGNING_ENABLED=true), so either source
+# local-signing.env first, OR skip signing for a local-only publish:
+./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false
+```
+
+**Use the new version in QamarApp** — bump `qamar` / `qamar-translations` / `qamar-transliteration` in `gradle/libs.versions.toml`, then:
+
+```bash
+./gradlew --refresh-dependencies
+```
+
+The sections below explain where each credential comes from, the `./scripts/publish.sh` helper, and the GitHub Actions (CI) alternative.
+
+---
+
 ## 1. What You Need (Credentials Summary)
 
 | What | Where to get it | Used as |
