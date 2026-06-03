@@ -17,33 +17,43 @@ import platform.Foundation.create
 actual class DatabaseFactory actual constructor(platformContext: Any?) {
     actual val platformContext: Any? = platformContext
     private val resourceReader = ResourceReader(null)
+    private val fileManager = NSFileManager.defaultManager
+
+    /**
+     * Must match [co.touchlab.sqliter.DatabaseFileContext.databaseDirPath]:
+     * Application Support + "/databases". [NativeSqliteDriver] takes a file name only.
+     */
+    private val databaseDirectory: String
+        get() {
+            val path = NSHomeDirectory() + "/Library/Application Support/databases"
+            fileManager.createDirectoryAtPath(
+                path = path,
+                withIntermediateDirectories = true,
+                attributes = null,
+                error = null,
+            )
+            return path
+        }
 
     @OptIn(BetaInteropApi::class)
     actual suspend fun createDriver(config: DatabaseConfig): SqlDriver {
-        val dbPath = NSHomeDirectory() + "/Library/Application Support"
-        NSFileManager.defaultManager.createDirectoryAtPath(
-            path = dbPath,
-            withIntermediateDirectories = true,
-            attributes = null,
-            error = null,
-        )
-        val dbFile = "$dbPath/${config.name}"
+        val dbFile = "${databaseDirectory}/${config.name}"
 
-        if (config.copyBundledIfMissing) {
-            val fileManager = NSFileManager.defaultManager
-            if (!fileManager.fileExistsAtPath(dbFile)) {
-                runCatching {
-                    val bytes = runCatching { resourceReader.readBytes("databases/quran.db") }
-                        .getOrElse { resourceReader.readBytes("quran.db") }
-                    val data = bytes.usePinned { pinned ->
-                        NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
-                    }
-                    fileManager.createFileAtPath(dbFile, data, null)
+        if (config.copyBundledIfMissing && !fileManager.fileExistsAtPath(dbFile)) {
+            runCatching {
+                val bytes = runCatching { resourceReader.readBytes("databases/quran.db") }
+                    .getOrElse { resourceReader.readBytes("quran.db") }
+                val data = bytes.usePinned { pinned ->
+                    NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
                 }
+                fileManager.createFileAtPath(dbFile, data, null)
             }
         }
 
-        val driver: SqlDriver = NativeSqliteDriver(QuranDatabase.Schema.synchronous(), dbFile)
+        val driver: SqlDriver = NativeSqliteDriver(
+            schema = QuranDatabase.Schema.synchronous(),
+            name = config.name,
+        )
         DatabaseSeeder(driver, resourceReader).seedIfEmpty()
         return driver
     }

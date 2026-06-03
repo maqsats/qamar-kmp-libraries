@@ -164,6 +164,12 @@ def build_sqlite_db(verses: List[Verse], page_rows: List[Tuple[int, int, int]]) 
         "INSERT INTO quran_paged (page, sura, ayah) VALUES (?, ?, ?);",
         page_rows,
     )
+    # Stamp the schema version so SQLDelight's native (iOS) and Android drivers treat the
+    # prepopulated file as already-created and skip Schema.create(). Without this the file
+    # ships with user_version=0, the drivers run CREATE TABLE on the populated DB, and the
+    # app crashes with "table verses already exists". Keep in sync with QuranDatabase schema
+    # version (currently 1 — bump here whenever a .sqm migration raises it).
+    cur.execute("PRAGMA user_version = 1;")
     conn.commit()
     conn.close()
     print(f"Wrote {db_path.relative_to(PROJECT_ROOT)} "
