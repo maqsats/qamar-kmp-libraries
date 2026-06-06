@@ -25,6 +25,11 @@ kotlin {
         browser()
         nodejs()
     }
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+    }
 
     applyDefaultHierarchyTemplate()
 
@@ -60,6 +65,14 @@ kotlin {
         val jsMain by getting
         jsMain.dependencies {
             implementation(libs.sqldelight.web.worker.driver)
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.0"))
+            implementation(npm("sql.js", "1.8.0"))
+        }
+        val wasmJsMain by getting
+        wasmJsMain.dependencies {
+            implementation(libs.sqldelight.web.worker.driver)
+            implementation(libs.kotlinx.browser)
             implementation(devNpm("copy-webpack-plugin", "9.1.0"))
             implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.0"))
             implementation(npm("sql.js", "1.8.0"))

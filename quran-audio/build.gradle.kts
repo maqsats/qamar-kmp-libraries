@@ -45,6 +45,11 @@ kotlin {
         browser()
         nodejs()
     }
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+    }
 
     applyDefaultHierarchyTemplate()
 
@@ -80,6 +85,11 @@ kotlin {
         val jsMain by getting
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
+        }
+        val wasmJsMain by getting
+        wasmJsMain.dependencies {
+            implementation(libs.ktor.client.js)
+            implementation(libs.kotlinx.browser)
         }
     }
 }
