@@ -12,10 +12,16 @@ actual class QuranAudioPlayer actual constructor(
 ) {
     actual val isSupported: Boolean = true
 
+    actual var onStateChange: ((AudioPlaybackState) -> Unit)? = null
+
     private val mediaPlayerRef = AtomicReference<MediaPlayer?>(null)
 
     @Volatile
     private var stateInternal: AudioPlaybackState = AudioPlaybackState.IDLE
+        set(value) {
+            field = value
+            onStateChange?.invoke(value)
+        }
 
     @Volatile
     private var playbackRateInternal: Float = 1f

@@ -24,9 +24,15 @@ actual class QuranAudioPlayer actual constructor(
 ) {
     actual val isSupported: Boolean = true
 
+    actual var onStateChange: ((AudioPlaybackState) -> Unit)? = null
+
     private var player: AVPlayer? = null
     private var endObserver: Any? = null
     private var stateInternal: AudioPlaybackState = AudioPlaybackState.IDLE
+        set(value) {
+            field = value
+            onStateChange?.invoke(value)
+        }
     private var playbackRateInternal: Float = 1f
     private var volumeInternal: Float = 1f
 

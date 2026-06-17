@@ -17,6 +17,15 @@ expect class QuranAudioPlayer(platformContext: Any?) {
     val positionMs: Long
     val playbackRate: Float
 
+    /**
+     * Invoked on every playback-state transition (LOADING, READY, PLAYING, PAUSED,
+     * STOPPED, COMPLETED, ERROR, IDLE). Lets callers react to completion (e.g. auto-advance
+     * to the next ayah) without polling. Callbacks may be delivered on a platform thread
+     * (Android MediaPlayer looper, iOS notification queue, JavaFX thread, browser event loop),
+     * so marshal to your own dispatcher before touching UI or non-thread-safe state.
+     */
+    var onStateChange: ((AudioPlaybackState) -> Unit)?
+
     fun load(source: String, autoPlay: Boolean = false)
     fun play()
     fun pause()
