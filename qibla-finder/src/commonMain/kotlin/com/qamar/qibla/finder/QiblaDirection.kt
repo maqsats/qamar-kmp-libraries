@@ -34,7 +34,14 @@ fun isQiblaAligned(
     deviceAzimuthDegrees: Double,
     toleranceDegrees: Double = 14.0,
 ): Boolean {
-    val delta = abs(round(deviceAzimuthDegrees) - qiblaDirectionDegrees)
+    // Circular (shortest-arc) distance on the compass. A plain
+    // abs(az - dir) breaks across the 0deg/360deg seam: 359deg and 1deg are 2deg
+    // apart, not 358deg. Without the wrap, users whose qibla points near
+    // due north (e.g. East Africa -- Kenya, Tanzania, Somalia, Comoros)
+    // never see the aligned state even when pointing correctly. The
+    // `% 360` guards against unnormalized inputs before folding.
+    val raw = abs(round(deviceAzimuthDegrees) - qiblaDirectionDegrees) % 360.0
+    val delta = minOf(raw, 360.0 - raw)
     return delta < toleranceDegrees
 }
 

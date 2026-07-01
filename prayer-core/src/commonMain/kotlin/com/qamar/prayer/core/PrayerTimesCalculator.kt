@@ -123,7 +123,14 @@ class PrayerTimesCalculator(
         val Z = computeMidDay(jDate, t)
         val Beg = -dsin(angle) - dsin(D) * dsin(coordinates.latitude)
         val Mid = dcos(D) * dcos(coordinates.latitude)
-        val cosH = (Beg / Mid).coerceIn(-1.0, 1.0) // clamp to avoid NaN at high latitude
+        val cosH = Beg / Mid
+        // At high latitudes the sun may never reach the requested twilight angle, so cosH
+        // falls outside [-1, 1]. Return NaN (instead of clamping) so the chosen
+        // HighLatitudeRule estimate applies in adjustHighLatTimes(), or — under
+        // HighLatitudeRule.NONE — the NaN flows through to the calculator's invalid-time
+        // text and the repository's polar-suppression path. Clamping here would collapse
+        // Fajr/Isha onto solar noon and silently defeat both paths.
+        if (cosH !in -1.0..1.0) return Double.NaN
         val V = darccos(cosH) / 15.0
         return Z + if (angle > 90) -V else V
     }
