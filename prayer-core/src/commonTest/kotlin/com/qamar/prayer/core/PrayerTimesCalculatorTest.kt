@@ -37,6 +37,28 @@ class PrayerTimesCalculatorTest {
     }
 
     @Test
+    fun everyCalculationMethod_producesOrderedTimes() {
+        // Mid-latitude reference point; every method must yield a sane sequence.
+        val coords = Coordinates(41.0082, 28.9784) // Istanbul — low enough that every twilight angle resolves
+        val date = DateComponents(2025, 6, 15)
+        for (method in CalculationMethod.entries) {
+            // ANGLE_BASED mirrors the app's default; the MID_NIGHT default would
+            // push QMDB/Diyanet's angle-0 Maghrib past Isha (the app guards this).
+            val calc = PrayerTimesCalculator(
+                calculationMethod = method,
+                timeFormat = TimeFormat.TIME_24,
+                adjustHighLats = HighLatitudeRule.ANGLE_BASED,
+            )
+            val raw = calc.prayerTimesRaw(date, coords, 3.0)
+            assertTrue(raw.fajr < raw.sunrise, "$method fajr<sunrise")
+            assertTrue(raw.sunrise < raw.dhuhr, "$method sunrise<dhuhr")
+            assertTrue(raw.dhuhr < raw.asr, "$method dhuhr<asr")
+            assertTrue(raw.asr < raw.maghrib, "$method asr<maghrib")
+            assertTrue(raw.maghrib < raw.isha, "$method maghrib<isha")
+        }
+    }
+
+    @Test
     fun prayerTimesForMonth_returnsCorrectDayCount() {
         val calc = PrayerTimesCalculator(timeFormat = TimeFormat.TIME_24)
         val list = calc.prayerTimesForMonth(2025, 6, Coordinates(40.0, -74.0), -4.0)

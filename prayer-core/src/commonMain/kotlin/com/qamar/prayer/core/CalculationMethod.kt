@@ -25,6 +25,40 @@ enum class CalculationMethod(internal val params: MethodParams) {
     TEHRAN(MethodParams(17.7, ParameterType.ANGLE, 4.5, ParameterType.ANGLE, 14.0)),
     JAFARI(MethodParams(16.0, ParameterType.ANGLE, 4.0, ParameterType.ANGLE, 14.0)),
     DIYANET(MethodParams(18.0, ParameterType.ANGLE, 0.0, ParameterType.ANGLE, 17.0)),
+
+    /** UAE — General Authority of Islamic Affairs & Endowments. */
+    DUBAI(MethodParams(18.2, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 18.2)),
+
+    /** Kuwait — Ministry of Awqaf and Islamic Affairs. */
+    KUWAIT(MethodParams(18.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 17.5)),
+
+    /** Qatar — Ministry of Awqaf and Islamic Affairs; fixed 90-minute Isha. */
+    QATAR(MethodParams(18.0, ParameterType.MINUTES, 0.0, ParameterType.MINUTES, 90.0)),
+
+    /** Singapore — Majlis Ugama Islam Singapura (MUIS). */
+    SINGAPORE(MethodParams(20.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 18.0)),
+
+    /** Malaysia — Jabatan Kemajuan Islam Malaysia (JAKIM). */
+    JAKIM(MethodParams(20.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 18.0)),
+
+    /** Indonesia — Kementerian Agama (Kemenag). */
+    KEMENAG(MethodParams(20.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 18.0)),
+
+    /** France — Union des Organisations Islamiques de France; 12°/12°. */
+    UOIF(MethodParams(12.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 12.0)),
+
+    /** Russia — Spiritual Administration of Muslims of Russia. */
+    RUSSIA(MethodParams(16.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 15.0)),
+
+    /** Morocco — Ministry of Habous and Islamic Affairs. */
+    MOROCCO(MethodParams(19.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 17.0)),
+
+    /** Algeria — Ministry of Religious Affairs and Wakfs. */
+    ALGERIA(MethodParams(18.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 17.0)),
+
+    /** Tunisia — Ministry of Religious Affairs. */
+    TUNISIA(MethodParams(18.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 18.0)),
+
     CUSTOM(MethodParams(18.0, ParameterType.MINUTES, 0.0, ParameterType.ANGLE, 17.0)),
 }
 
