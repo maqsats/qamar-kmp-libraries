@@ -494,20 +494,6 @@
       "currentVersion": 1
     },
     {
-      "id": 69,
-      "displayName": "Қазақша (Kazakh Tr.)",
-      "translator": "Халифа алтай",
-      "languageCode": "kk",
-      "fileUrl": "https:\/\/android.quran.com\/data\/getTranslation.php?id=69&ext=zip",
-      "fileName": "quran.kk.altai.db",
-      "saveTo": "databases",
-      "downloadType": "translation",
-      "minimum_required_version": 2,
-      "maximum_allowed_version": null,
-      "minimumVersion": 2,
-      "currentVersion": 1
-    },
-    {
       "id": 80,
       "displayName": "Қазақша (Kazakh Tr.)",
       "translator": "Анарбаев Нұрлан, Әкімханов Асқар",
@@ -606,36 +592,6 @@
       "maximum_allowed_version": null,
       "minimumVersion": 1,
       "currentVersion": 2
-    },
-    {
-      "id": 30,
-      "displayName": "Русский (Russian Tr.)",
-      "translator": "Эльмир Кулиев",
-      "languageCode": "ru",
-      "fileUrl": "https:\/\/android.quran.com\/data\/getTranslation.php?id=30&ext=zip",
-      "fileName": "quran.ru.kuliev.db",
-      "saveTo": "databases",
-      "downloadType": "translation",
-      "minimum_required_version": 1,
-      "maximum_allowed_version": null,
-      "minimumVersion": 1,
-      "currentVersion": 3,
-      "translatorForeign": "\u041a\u0443\u043b\u0438\u0435\u0432"
-    },
-    {
-      "id": 50,
-      "displayName": "Русский (Russian Tr.)",
-      "translator": "Abu Adel",
-      "languageCode": "ru",
-      "fileUrl": "https:\/\/android.quran.com\/data\/getTranslation.php?id=50&ext=zip",
-      "fileName": "quran.ru.abuadel.db",
-      "saveTo": "databases",
-      "downloadType": "translation",
-      "minimum_required_version": 2,
-      "maximum_allowed_version": null,
-      "minimumVersion": 2,
-      "currentVersion": 1,
-      "translatorForeign": "\u0410\u0431\u0443 \u0410\u0434\u0435\u043b\u044c"
     },
     {
       "id": 17,
