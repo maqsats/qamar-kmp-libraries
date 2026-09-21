@@ -45,6 +45,9 @@ actual class TranslationDatabaseHelper actual constructor(platformContext: Any?)
         idbPut(translationId, bytes)
     }
 
+    actual suspend fun readDatabaseBytes(translationId: String): ByteArray? =
+        runCatching { idbGet(translationId) }.getOrNull()
+
     actual suspend fun decompressIfZip(bytes: ByteArray): ByteArray {
         if (!bytes.isZip()) return bytes
         return runCatching { unzipFirstDb(bytes) }.getOrDefault(bytes)

@@ -52,6 +52,11 @@ actual class TranslationDatabaseHelper actual constructor(platformContext: Any?)
         idbPut(DB_NAME, STORE_NAME, translationId, byteArrayToUint8(bytes)).await()
     }
 
+    actual suspend fun readDatabaseBytes(translationId: String): ByteArray? = runCatching {
+        val stored = idbGet(DB_NAME, STORE_NAME, translationId).await()
+        if (stored == null) null else uint8ToByteArray(asUint8(stored))
+    }.getOrNull()
+
     actual suspend fun decompressIfZip(bytes: ByteArray): ByteArray {
         if (!bytes.isZip()) return bytes
         ensureFflate()

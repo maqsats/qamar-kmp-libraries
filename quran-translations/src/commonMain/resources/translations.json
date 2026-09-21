@@ -594,6 +594,20 @@
       "currentVersion": 2
     },
     {
+      "id": 81,
+      "displayName": "Русский (Russian Tr.)",
+      "translator": "Калям Шариф (ДУМ РТ)",
+      "languageCode": "ru",
+      "fileUrl": "https://firebasestorage.googleapis.com/v0/b/qamar-c20f7.firebasestorage.app/o/quran.ru.kalam.db?alt=media&token=c71c2234-0037-4114-83dc-53d2ee3fdb45",
+      "fileName": "quran.ru.kalam.db",
+      "saveTo": "databases",
+      "downloadType": "translation",
+      "minimum_required_version": 2,
+      "maximum_allowed_version": null,
+      "minimumVersion": 2,
+      "currentVersion": 1
+    },
+    {
       "id": 17,
       "displayName": "Somali Translation",
       "translator": "Mahmud Muhammad Abduh",

@@ -41,6 +41,12 @@ actual class TranslationDatabaseHelper actual constructor(platformContext: Any?)
         File(getDatabasePath(translationId)).writeBytes(bytes)
     }
 
+    actual suspend fun readDatabaseBytes(translationId: String): ByteArray? {
+        val file = File(getDatabasePath(translationId))
+        if (!file.exists()) return null
+        return runCatching { file.readBytes() }.getOrNull()
+    }
+
     actual suspend fun decompressIfZip(bytes: ByteArray): ByteArray {
         if (!bytes.isZip()) return bytes
         return runCatching {

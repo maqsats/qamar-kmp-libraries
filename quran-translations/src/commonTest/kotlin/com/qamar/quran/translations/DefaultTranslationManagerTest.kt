@@ -2,7 +2,6 @@ package com.qamar.quran.translations
 
 import com.qamar.quran.test.runTest
 import com.qamar.quran.translations.model.DownloadStatus
-import kotlinx.coroutines.flow.first
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -10,202 +9,95 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.flow.first
 
+/**
+ * Behaviour of the manager against the catalog that ships inside the artifact.
+ *
+ * `remoteCatalogUrl = null` throughout: these assertions are about the bundled
+ * catalog and must not depend on the network. The hosted lookup, its fallbacks
+ * and the download flow are covered in [HostedCatalogTest], which drives them
+ * from a MockEngine.
+ *
+ * Note the seven tests that used to live here drove real downloads from
+ * android.quran.com and asserted a `PENDING` first emission the implementation
+ * has never produced; they failed on every run. What they were reaching for is
+ * covered deterministically here and in [HostedCatalogTest].
+ */
 class DefaultTranslationManagerTest {
     private lateinit var manager: DefaultTranslationManager
     private lateinit var metadataSource: TranslationMetadataSource
 
     @BeforeTest
     fun setup() {
+        // The resolved catalog is cached process-wide, so it is cleared here -
+        // otherwise one test is answered from another test's lookup.
+        TranslationCatalogCache.clear()
         metadataSource = TranslationMetadataSource(null)
-        manager = DefaultTranslationManager(null, metadataSource)
+        manager = DefaultTranslationManager(null, metadataSource, remoteCatalogUrl = null)
     }
 
     @AfterTest
     fun tearDown() {
-        // Cleanup if needed
+        TranslationCatalogCache.clear()
     }
 
     @Test
-    fun testGetAvailableTranslations() = runTest {
+    fun availableTranslationsComeFromTheBundledCatalog() = runTest {
         val translations = manager.getAvailableTranslations()
-        assertTrue(translations.isNotEmpty(), "Should have available translations")
-        translations.forEach { translation ->
-            assertNotNull(translation.translationId)
-            assertNotNull(translation.displayName)
-            assertNotNull(translation.languageCode)
+        assertTrue(translations.isNotEmpty(), "bundled catalog must not be empty")
+        translations.forEach {
+            assertTrue(it.translationId.isNotBlank())
+            assertTrue(it.displayName.isNotBlank())
+            assertTrue(it.languageCode.isNotBlank())
         }
     }
 
     @Test
-    fun testDownloadTranslation() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val translationId = translations.first().translationId
-            val progressFlow = manager.downloadTranslation(translationId)
-
-            val progress = progressFlow.first()
-            assertEquals(translationId, progress.translationId)
-            assertEquals(DownloadStatus.PENDING, progress.status)
-
-            // Wait for completion
-            val finalProgress = progressFlow.first { it.status == DownloadStatus.COMPLETED }
-            assertEquals(DownloadStatus.COMPLETED, finalProgress.status)
-            assertEquals(100f, finalProgress.percentage)
-        }
+    fun checkForUpdatesReturnsTheSameCatalog() = runTest {
+        assertEquals(manager.getAvailableTranslations(), manager.checkForUpdates())
     }
 
     @Test
-    fun testIsTranslationDownloaded() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val translationId = translations.first().translationId
-
-            // Initially not downloaded
-            assertFalse(manager.isTranslationDownloaded(translationId))
-
-            // Download it
-            manager.downloadTranslation(translationId)
-                .first { it.status == DownloadStatus.COMPLETED }
-
-            // Now should be downloaded
-            assertTrue(manager.isTranslationDownloaded(translationId))
-        }
+    fun autoDownloadResolvesAKnownLanguage() = runTest {
+        val language = manager.getAvailableTranslations().first().languageCode
+        val result = manager.autoDownloadTranslation(language)
+        assertTrue(result.isSuccess)
+        assertEquals(language, result.getOrNull()?.languageCode)
     }
 
     @Test
-    fun testGetDownloadStatus() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val translationId = translations.first().translationId
-
-            // Initially pending
-            assertEquals(DownloadStatus.PENDING, manager.getDownloadStatus(translationId))
-
-            // Download it
-            manager.downloadTranslation(translationId)
-                .first { it.status == DownloadStatus.COMPLETED }
-
-            // Should be completed
-            assertEquals(DownloadStatus.COMPLETED, manager.getDownloadStatus(translationId))
-        }
+    fun autoDownloadRejectsAnUnknownLanguage() = runTest {
+        assertTrue(manager.autoDownloadTranslation("invalid_lang_code").isFailure)
     }
 
     @Test
-    fun testCancelDownload() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val translationId = translations.first().translationId
-
-            // Start download
-            manager.downloadTranslation(translationId)
-
-            // Cancel it
-            val cancelled = manager.cancelDownload(translationId)
-            assertTrue(cancelled)
-
-            // Status should be cancelled
-            assertEquals(DownloadStatus.CANCELLED, manager.getDownloadStatus(translationId))
-        }
+    fun downloadingAnIdThatIsNotInTheCatalogFails() = runTest {
+        // The id is resolved against the catalog before any request is made, so
+        // this never touches the network.
+        val progress = manager.downloadTranslation("quran.not.a.real.edition").first()
+        assertEquals(DownloadStatus.FAILED, progress.status)
+        assertEquals("quran.not.a.real.edition", progress.translationId)
     }
 
     @Test
-    fun testDeleteTranslation() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val translationId = translations.first().translationId
-
-            // Download first
-            manager.downloadTranslation(translationId)
-                .first { it.status == DownloadStatus.COMPLETED }
-            assertTrue(manager.isTranslationDownloaded(translationId))
-
-            // Delete it
-            val result = manager.deleteTranslation(translationId)
-            assertTrue(result.isSuccess)
-
-            // Should no longer be downloaded
-            assertFalse(manager.isTranslationDownloaded(translationId))
-        }
+    fun anUntouchedTranslationIsPendingAndNotDownloaded() = runTest {
+        val id = "quran.not.a.real.edition"
+        assertEquals(DownloadStatus.PENDING, manager.getDownloadStatus(id))
+        assertFalse(manager.isTranslationDownloaded(id))
     }
 
     @Test
-    fun testUpdateTranslation() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val translationId = translations.first().translationId
-
-            val progressFlow = manager.updateTranslation(translationId)
-            val progress = progressFlow.first()
-
-            assertEquals(translationId, progress.translationId)
-            // Should complete successfully
-            val finalProgress = progressFlow.first { it.status == DownloadStatus.COMPLETED }
-            assertEquals(DownloadStatus.COMPLETED, finalProgress.status)
-        }
+    fun cancelDownloadMarksTheTranslationCancelled() = runTest {
+        val id = manager.getAvailableTranslations().first().translationId
+        assertTrue(manager.cancelDownload(id))
+        assertEquals(DownloadStatus.CANCELLED, manager.getDownloadStatus(id))
     }
 
     @Test
-    fun testCheckForUpdates() = runTest {
-        val updates = manager.checkForUpdates()
-        // Should return list of translations (may be empty)
-        assertNotNull(updates)
-        Unit
-    }
-
-    @Test
-    fun testAutoDownloadTranslation() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val languageCode = translations.first().languageCode
-            val result = manager.autoDownloadTranslation(languageCode)
-
-            if (result.isSuccess) {
-                val translation = result.getOrNull()
-                assertNotNull(translation)
-                assertEquals(languageCode, translation.languageCode)
-                // Wait for download to complete by collecting the flow
-                manager.downloadTranslation(translation.translationId)
-                    .first { it.status == DownloadStatus.COMPLETED }
-                assertTrue(manager.isTranslationDownloaded(translation.translationId))
-            }
-        }
-    }
-
-    @Test
-    fun testAutoDownloadTranslationInvalidLanguage() = runTest {
-        val result = manager.autoDownloadTranslation("invalid_lang_code")
-        assertTrue(result.isFailure)
-    }
-
-    @Test
-    fun testDownloadProgressFlow() = runTest {
-        val translations = manager.getAvailableTranslations()
-        if (translations.isNotEmpty()) {
-            val translationId = translations.first().translationId
-            val progressFlow = manager.downloadTranslation(translationId)
-
-            var pendingReceived = false
-            var completedReceived = false
-
-            progressFlow.collect { progress ->
-                when (progress.status) {
-                    DownloadStatus.PENDING -> {
-                        pendingReceived = true
-                        assertEquals(0f, progress.percentage)
-                    }
-
-                    DownloadStatus.COMPLETED -> {
-                        completedReceived = true
-                        assertEquals(100f, progress.percentage)
-                    }
-
-                    else -> {}
-                }
-            }
-
-            assertTrue(pendingReceived, "Should receive PENDING status")
-            assertTrue(completedReceived, "Should receive COMPLETED status")
-        }
+    fun deletingATranslationThatWasNeverDownloadedSucceeds() = runTest {
+        val result = manager.deleteTranslation("quran.not.a.real.edition")
+        assertTrue(result.isSuccess)
+        assertNotNull(result.getOrNull())
     }
 }

@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.coroutines.core)
             implementation(projects.quranTest)
+            implementation(libs.ktor.client.mock)
         }
         val androidMain by getting
         androidMain.dependencies {

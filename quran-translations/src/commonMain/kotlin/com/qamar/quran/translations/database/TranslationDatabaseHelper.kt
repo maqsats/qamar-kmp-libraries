@@ -10,6 +10,16 @@ expect class TranslationDatabaseHelper(platformContext: Any?) {
     suspend fun isDatabaseDownloaded(translationId: String): Boolean
     fun getDatabasePath(translationId: String): String
     suspend fun writeDatabaseBytes(translationId: String, bytes: ByteArray)
+
+    /**
+     * Bytes previously stored under [translationId], or null if nothing is
+     * stored there. The read half of [writeDatabaseBytes]; used for the cached
+     * translation catalog, which is stored the same way a translation database
+     * is but holds JSON rather than SQLite, so it is never opened through
+     * [getDriver].
+     */
+    suspend fun readDatabaseBytes(translationId: String): ByteArray?
+
     suspend fun decompressIfZip(bytes: ByteArray): ByteArray
 }
 

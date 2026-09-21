@@ -13,7 +13,9 @@ import platform.Foundation.NSData
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSHomeDirectory
 import platform.Foundation.create
+import platform.Foundation.dataWithContentsOfFile
 import platform.Foundation.writeToFile
+import platform.posix.memcpy
 
 actual class TranslationDatabaseHelper actual constructor(platformContext: Any?) {
     private val drivers = mutableMapOf<String, SqlDriver>()
@@ -74,6 +76,18 @@ actual class TranslationDatabaseHelper actual constructor(platformContext: Any?)
             )
         }
         data.writeToFile(path, atomically = true)
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    actual suspend fun readDatabaseBytes(translationId: String): ByteArray? {
+        val path = getDatabasePath(translationId)
+        if (!fileManager.fileExistsAtPath(path)) return null
+        val data = NSData.dataWithContentsOfFile(path) ?: return null
+        val length = data.length.toInt()
+        if (length == 0) return ByteArray(0)
+        val out = ByteArray(length)
+        out.usePinned { pinned -> memcpy(pinned.addressOf(0), data.bytes, data.length) }
+        return out
     }
 
     actual suspend fun decompressIfZip(bytes: ByteArray): ByteArray {
